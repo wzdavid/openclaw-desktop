@@ -281,8 +281,19 @@ jobs:
       - name: Upload Windows release assets
         shell: pwsh
         run: |
-          $files = Get-ChildItem -Path release -Recurse -Include *.exe,*.yml,*.blockmap | ForEach-Object { $_.FullName }
-          if (-not $files -or $files.Count -eq 0) { throw "No Windows release assets found under release/" }
+          $patterns = @(
+            "release/*Setup*.exe",
+            "release/*.exe.blockmap",
+            "release/latest*.yml"
+          )
+          $files = @()
+          foreach ($pattern in $patterns) {
+            $files += Get-ChildItem -Path $pattern -File -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName }
+          }
+          $files = $files | Sort-Object -Unique
+          if (-not $files -or $files.Count -eq 0) { throw "No Windows release assets found (expected setup exe/blockmap/latest*.yml under release/)." }
+          Write-Host "Uploading Windows release assets:"
+          $files | ForEach-Object { Write-Host " - $_" }
           gh release upload $env:GITHUB_REF_NAME $files --clobber --repo $env:GITHUB_REPOSITORY
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
