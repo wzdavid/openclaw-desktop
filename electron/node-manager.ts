@@ -20,7 +20,7 @@ export class NodeManager {
   private static readonly STARTUP_HIGH_RISK_TIMEOUT_MS_WIN = 240000;
   private static readonly STARTUP_STALL_TIMEOUT_MS_WIN = 360000;
   private static readonly STARTUP_TOTAL_TIMEOUT_MS_WIN = 420000;
-  private static readonly STARTUP_STALL_TIMEOUT_MS_OTHER = 45000;
+  private static readonly STARTUP_STALL_TIMEOUT_MS_OTHER = 180000;
   private process: ChildProcess | null = null;
   private readonly serverPort: number;
   private readonly maxRetries: number;
@@ -557,7 +557,7 @@ export class NodeManager {
     return this.configErrorDetected;
   }
 
-  async waitForReady(timeout: number = 180000): Promise<void> {
+  async waitForReady(timeout: number = 300000): Promise<void> {
     const startTime = Date.now();
     const isWindows = process.platform === 'win32';
     const timeoutMs = isWindows ? Math.max(timeout, NodeManager.STARTUP_TOTAL_TIMEOUT_MS_WIN) : timeout;

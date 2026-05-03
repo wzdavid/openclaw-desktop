@@ -273,8 +273,8 @@ jobs:
       - name: Bundle Node.js + openclaw
         run: powershell -ExecutionPolicy Bypass -File scripts/bundle-node.ps1
 
-      - name: Build Windows app
-        run: npm run build:win
+      - name: Build Windows app (no publish)
+        run: npm run build:win:lite
         env:
           npm_config_python: python
 
