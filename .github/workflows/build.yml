@@ -5,10 +5,6 @@ name: Build
 # - uploads artifacts to Actions
 # - does NOT publish GitHub Releases
 on:
-  push:
-    branches:
-      - main
-  pull_request:
   workflow_dispatch:
 
 concurrency:

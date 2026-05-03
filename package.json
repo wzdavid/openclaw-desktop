@@ -106,6 +106,13 @@
     ],
     "extraResources": [
       {
+        "from": "resources/icons",
+        "to": "icons",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
         "from": "resources/node-${arch}",
         "to": "node",
         "filter": [

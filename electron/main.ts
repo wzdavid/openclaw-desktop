@@ -209,10 +209,19 @@ app.setName('OpenClaw Desktop');
 // In dev: __dirname = dist-electron/, one level up reaches project root.
 // In production: use process.resourcesPath set by electron-builder.
 function getResourcePath(...segments: string[]): string {
-  const base = app.isPackaged
-    ? process.resourcesPath
-    : path.join(__dirname, '../resources');
-  return path.join(base, ...segments);
+  const devBase = path.join(__dirname, '../resources');
+  const packagedCandidates = [
+    path.join(process.resourcesPath, ...segments),
+    path.join(process.resourcesPath, 'app.asar', 'resources', ...segments),
+    path.join(__dirname, '../resources', ...segments),
+  ];
+  const devCandidates = [
+    path.join(devBase, ...segments),
+    path.join(process.cwd(), 'resources', ...segments),
+  ];
+  const candidates = app.isPackaged ? packagedCandidates : devCandidates;
+  const existing = candidates.find((candidate) => fs.existsSync(candidate));
+  return existing || candidates[0];
 }
 
 function getSkillHubEnv(): NodeJS.ProcessEnv {
@@ -3117,20 +3126,22 @@ async function openClawHubLoginWindow(): Promise<{ success: boolean; error?: str
 // ═══════════════════════════════════════════════════════════
 
 function setupTray(): void {
-  const trayIconPath = getResourcePath('icons', 'tray-icon.png');
-  let trayImage = nativeImage.createFromPath(trayIconPath);
-  if (trayImage.isEmpty()) {
-    const fallbackPng = getResourcePath('icons', 'icon.png');
-    trayImage = nativeImage.createFromPath(fallbackPng);
-  }
-  if (trayImage.isEmpty() && process.platform === 'win32') {
-    const fallbackIco = getResourcePath('icons', 'icon.ico');
-    trayImage = nativeImage.createFromPath(fallbackIco);
+  const isMac = process.platform === 'darwin';
+  const trayCandidates = process.platform === 'win32'
+    ? [getResourcePath('icons', 'icon.ico'), getResourcePath('icons', 'tray-icon.png'), getResourcePath('icons', 'icon.png')]
+    : isMac
+      ? [getResourcePath('icons', 'tray-iconTemplate.png'), getResourcePath('icons', 'tray-icon.png'), getResourcePath('icons', 'icon.png')]
+      : [getResourcePath('icons', 'tray-icon.png'), getResourcePath('icons', 'icon.png')];
+  let trayImage = nativeImage.createEmpty();
+  for (const iconPath of trayCandidates) {
+    trayImage = nativeImage.createFromPath(iconPath);
+    if (!trayImage.isEmpty()) break;
   }
   if (trayImage.isEmpty()) {
     console.warn('[Tray] Failed to load tray icon from known resource paths');
   }
-  const resized = trayImage.resize({ width: 16, height: 16 });
+  if (isMac && !trayImage.isEmpty()) trayImage.setTemplateImage(true);
+  const resized = isMac ? trayImage : trayImage.resize({ width: 16, height: 16 });
   tray = new Tray(resized.isEmpty() ? trayImage : resized);
   tray.setToolTip('OpenClaw Desktop');
 
