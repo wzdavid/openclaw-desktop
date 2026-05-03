@@ -1,0 +1,238 @@
+name: Build
+
+# CI build validation workflow:
+# - builds installers on CI for verification
+# - uploads artifacts to Actions
+# - does NOT publish GitHub Releases
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  # ── macOS x64 (signed + notarized) ──────────────────────────────────────────
+  build-mac-x64:
+    name: Build macOS (x64)
+    runs-on: macos-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Python tooling for node-gyp
+        run: python -m pip install --upgrade pip setuptools
+
+      - name: Verify python
+        run: |
+          python --version
+          python -c "import sys; print(sys.executable)"
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          npm_config_python: python
+
+      - name: Validate macOS signing secrets
+        run: |
+          test -n "${{ secrets.MAC_CERTS }}" || { echo "Missing secret: MAC_CERTS"; exit 1; }
+          test -n "${{ secrets.MAC_CERTS_PASSWORD }}" || { echo "Missing secret: MAC_CERTS_PASSWORD"; exit 1; }
+          test -n "${{ secrets.APPLE_ID }}" || { echo "Missing secret: APPLE_ID"; exit 1; }
+          test -n "${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}" || { echo "Missing secret: APPLE_APP_SPECIFIC_PASSWORD"; exit 1; }
+          test -n "${{ secrets.APPLE_TEAM_ID }}" || { echo "Missing secret: APPLE_TEAM_ID"; exit 1; }
+
+      - name: Bundle Node.js + openclaw
+        run: bash scripts/bundle-node.sh
+        env:
+          ARCH_OVERRIDE: x64
+
+      - name: Import code signing certificate
+        run: |
+          python - <<'PY'
+          import base64
+          import os
+          from pathlib import Path
+
+          cert_b64 = os.environ["MAC_CERTS_BASE64"]
+          cert_path = Path(os.environ["GITHUB_WORKSPACE"]) / "certificate.p12"
+          cert_path.write_bytes(base64.b64decode(cert_b64))
+          print(f"Certificate written to: {cert_path}")
+          PY
+        env:
+          MAC_CERTS_BASE64: ${{ secrets.MAC_CERTS }}
+
+      - name: Build macOS app (no publish)
+        run: |
+          ulimit -n 65536
+          npm run build
+          ./node_modules/.bin/electron-rebuild -f -w node-pty --arch x64
+          ./node_modules/.bin/electron-builder --mac dmg zip --x64 --publish never
+        env:
+          CSC_LINK: ${{ github.workspace }}/certificate.p12
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTS_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          npm_config_python: python
+
+      - name: Upload macOS x64 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-x64-release
+          path: |
+            release/*.dmg
+            release/*-mac.zip
+            release/*.blockmap
+            release/latest-mac.yml
+          if-no-files-found: warn
+
+  # ── macOS arm64 (signed + notarized) ────────────────────────────────────────
+  build-mac-arm64:
+    name: Build macOS (arm64)
+    needs: build-mac-x64
+    runs-on: macos-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Python tooling for node-gyp
+        run: python -m pip install --upgrade pip setuptools
+
+      - name: Verify python
+        run: |
+          python --version
+          python -c "import sys; print(sys.executable)"
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          npm_config_python: python
+
+      - name: Validate macOS signing secrets
+        run: |
+          test -n "${{ secrets.MAC_CERTS }}" || { echo "Missing secret: MAC_CERTS"; exit 1; }
+          test -n "${{ secrets.MAC_CERTS_PASSWORD }}" || { echo "Missing secret: MAC_CERTS_PASSWORD"; exit 1; }
+          test -n "${{ secrets.APPLE_ID }}" || { echo "Missing secret: APPLE_ID"; exit 1; }
+          test -n "${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}" || { echo "Missing secret: APPLE_APP_SPECIFIC_PASSWORD"; exit 1; }
+          test -n "${{ secrets.APPLE_TEAM_ID }}" || { echo "Missing secret: APPLE_TEAM_ID"; exit 1; }
+
+      - name: Bundle Node.js + openclaw
+        run: bash scripts/bundle-node.sh
+        env:
+          ARCH_OVERRIDE: arm64
+
+      - name: Import code signing certificate
+        run: |
+          python - <<'PY'
+          import base64
+          import os
+          from pathlib import Path
+
+          cert_b64 = os.environ["MAC_CERTS_BASE64"]
+          cert_path = Path(os.environ["GITHUB_WORKSPACE"]) / "certificate.p12"
+          cert_path.write_bytes(base64.b64decode(cert_b64))
+          print(f"Certificate written to: {cert_path}")
+          PY
+        env:
+          MAC_CERTS_BASE64: ${{ secrets.MAC_CERTS }}
+
+      - name: Build macOS app (no publish)
+        run: |
+          ulimit -n 65536
+          npm run build
+          ./node_modules/.bin/electron-rebuild -f -w node-pty --arch arm64
+          ./node_modules/.bin/electron-builder --mac dmg zip --arm64 --publish never
+        env:
+          CSC_LINK: ${{ github.workspace }}/certificate.p12
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTS_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          npm_config_python: python
+
+      - name: Upload macOS arm64 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-arm64-release
+          path: |
+            release/*arm64*.dmg
+            release/*arm64*-mac.zip
+            release/*arm64*.blockmap
+          if-no-files-found: warn
+
+  # ── Windows ─────────────────────────────────────────────────────────────────
+  build-win:
+    name: Build Windows
+    needs: build-mac-arm64
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Python tooling for node-gyp
+        run: python -m pip install --upgrade pip setuptools
+
+      - name: Verify python
+        run: |
+          python --version
+          python -c "import sys; print(sys.executable)"
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          npm_config_python: python
+
+      - name: Bundle Node.js + openclaw
+        run: powershell -ExecutionPolicy Bypass -File scripts/bundle-node.ps1
+
+      - name: Build Windows app (no publish)
+        run: npm run build:win:lite
+        env:
+          npm_config_python: python
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: |
+            release/**/*.exe
+            release/**/*.yml
+            release/**/*.blockmap
+            dist/**/*.exe
+            dist/**/*.yml
+            dist/**/*.blockmap
+          if-no-files-found: error

@@ -1,0 +1,164 @@
+{
+  "name": "openclaw-desktop",
+  "version": "0.4.0",
+  "description": "OpenClaw Desktop — OpenClaw 桌面客户端，连接 OpenClaw Gateway",
+  "main": "dist-electron/main.js",
+  "author": "Wei ZHANG",
+  "license": "MIT",
+  "openclawDesktopBundleDefaults": {
+    "nodeVersion": "22.16.0",
+    "openclawVersion": "2026.4.21"
+  },
+  "scripts": {
+    "sync:edition": "node scripts/sync-edition-package.js",
+    "prebuild": "npm run generate:provider-catalog",
+    "dev": "npm run sync:edition && concurrently --kill-others-on-fail \"vite\" \"wait-on http://localhost:5173 && node scripts/build-electron.js && electron . --enable-logging\"",
+    "dev:web": "vite",
+    "build:electron": "npm run sync:edition && node scripts/build-electron.js",
+    "build:renderer": "npm run generate:provider-catalog && vite build",
+    "build": "npm run sync:edition && npm run generate:provider-catalog && node scripts/build-electron.js && vite build",
+    "build:mac": "bash -c 'ulimit -n 65536 >/dev/null 2>&1 || true; if [ -f .env.apple ]; then source .env.apple; fi; npm run build && ./node_modules/.bin/electron-rebuild -f -w node-pty --arch x64 && electron-builder --mac --x64 && ./node_modules/.bin/electron-rebuild -f -w node-pty --arch arm64 && electron-builder --mac --arm64'",
+    "build:mac:lite": "bash -c 'ulimit -n 65536 >/dev/null 2>&1 || true; if [ -f .env.apple ]; then source .env.apple; fi; npm run build && ARCH=$(node -p \"process.arch === \\\"arm64\\\" ? \\\"arm64\\\" : \\\"x64\\\"\") && ./node_modules/.bin/electron-rebuild -f -w node-pty --arch $ARCH && electron-builder --mac dmg --$ARCH --publish never'",
+    "build:mac:lite:arm64": "bash -c 'ulimit -n 65536 >/dev/null 2>&1 || true; if [ -f .env.apple ]; then source .env.apple; fi; npm run build && ./node_modules/.bin/electron-rebuild -f -w node-pty --arch arm64 && electron-builder --mac dmg --arm64 --publish never'",
+    "build:mac:lite:x64": "bash -c 'ulimit -n 65536 >/dev/null 2>&1 || true; if [ -f .env.apple ]; then source .env.apple; fi; npm run build && ./node_modules/.bin/electron-rebuild -f -w node-pty --arch x64 && electron-builder --mac dmg --x64 --publish never'",
+    "build:win": "npm run build && electron-builder --win",
+    "build:win:lite": "npm run build && electron-builder --win nsis --x64 --publish never -c.nsis.differentialPackage=false -c.generateUpdatesFilesForAllChannels=false",
+    "build:linux": "npm run build && electron-builder --linux",
+    "package:mac": "bash -c 'ulimit -n 65536 >/dev/null 2>&1 || true; if [ -f .env.apple ]; then source .env.apple; fi; npm run build && ./node_modules/.bin/electron-rebuild -f -w node-pty --arch x64 && electron-builder --mac --x64 && ./node_modules/.bin/electron-rebuild -f -w node-pty --arch arm64 && electron-builder --mac --arm64'",
+    "package:win": "npm run build && electron-builder --win",
+    "package:win:lite": "npm run build:win:lite",
+    "test:config-tools": "node --import tsx --test src/pages/ConfigManager/toolsProviderDetection.test.ts src/pages/ConfigManager/toolsProviderMutation.test.ts src/pages/ConfigManager/runtimeNormalization.test.ts src/pages/ConfigManager/providerModelSelection.test.ts",
+    "test:chat-handler": "node --import tsx --test src/services/gateway/ChatHandler.test.ts",
+    "test:processing": "node --import tsx --test src/processing/buildSemanticBlocks.test.ts",
+    "test:electron-utils": "node --import tsx --test electron/output-files-index.test.ts",
+    "postinstall": "electron-builder install-app-deps",
+    "bundle:node": "bash scripts/bundle-node.sh",
+    "bundle:node:win": "powershell -ExecutionPolicy Bypass -File scripts/bundle-node.ps1",
+    "generate:provider-catalog": "node scripts/generate-provider-catalog.js"
+  },
+  "dependencies": {
+    "@emoji-mart/data": "^1.2.1",
+    "@emoji-mart/react": "^1.1.1",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/addon-web-links": "^0.11.0",
+    "@xterm/xterm": "^5.5.0",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.7",
+    "electron-log": "^5.2.4",
+    "electron-updater": "^6.3.9",
+    "framer-motion": "^11.15.0",
+    "i18next": "^25.8.4",
+    "lucide-react": "^0.469.0",
+    "node-pty": "^1.1.0",
+    "pdfjs-dist": "^5.6.205",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-i18next": "^16.5.4",
+    "react-markdown": "^9.0.1",
+    "react-router-dom": "^7.13.0",
+    "react-syntax-highlighter": "^15.6.1",
+    "react-virtuoso": "^4.18.3",
+    "recharts": "^3.7.0",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.0",
+    "ws": "^8.18.0",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^4.0.3",
+    "@types/node": "^22.10.5",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@types/react-syntax-highlighter": "^15.5.13",
+    "@types/ws": "^8.5.13",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.2",
+    "electron": "^34.2.0",
+    "electron-builder": "^25.1.8",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.21.0",
+    "typescript": "^5.8.2",
+    "vite": "^6.0.7",
+    "wait-on": "^8.0.3"
+  },
+  "overrides": {
+    "isbinaryfile": "^5.0.6"
+  },
+  "build": {
+    "appId": "ai.bluedigit.axiclaw-desktop",
+    "productName": "OpenClaw Desktop",
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/node-pty/**/*"
+    ],
+    "compression": "maximum",
+    "directories": {
+      "output": "release",
+      "buildResources": "resources"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "resources/icons/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/node-${arch}",
+        "to": "node",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "resources/icons/icon.icns",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false
+    },
+    "win": {
+      "icon": "resources/icons/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": false,
+      "include": "resources/installer.nsh"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "wzdavid",
+      "repo": "openclaw-desktop"
+    }
+  }
+}

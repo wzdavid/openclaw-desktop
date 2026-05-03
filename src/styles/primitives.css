@@ -1,0 +1,124 @@
+/* ═══════════════════════════════════════════════════════════
+   AEGIS Design System — Primitive Color Tokens
+   Complete color scales (50-900). These NEVER change between themes.
+   Themes reference these via var() to build semantic tokens.
+
+   Architecture:
+     primitives.css  → raw scales (this file)
+     themes/*.css    → semantic tokens (--aegis-*) pointing here
+     components      → use only --aegis-* or Tailwind aegis-* classes
+
+   Adding a new theme = copy a theme file, pick different steps.
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* ══════════════════════════════════════════
+     Teal — AEGIS Identity / Primary
+     ══════════════════════════════════════════ */
+  --color-teal-50:  204 245 237;
+  --color-teal-100: 167 235 220;
+  --color-teal-200: 128 221 202;
+  --color-teal-300: 102 212 190;
+  --color-teal-400: 78 201 176;      /* dark-mode primary */
+  --color-teal-500: 61 184 159;      /* dark-mode primary-hover */
+  --color-teal-600: 44 167 142;      /* dark-mode primary-deep */
+  --color-teal-700: 32 130 112;      /* light-mode primary */
+  --color-teal-800: 22 95 82;
+  --color-teal-900: 15 65 56;
+
+  /* ══════════════════════════════════════════
+     Blue — Accent
+     ══════════════════════════════════════════ */
+  --color-blue-50:  228 238 255;
+  --color-blue-100: 200 220 255;
+  --color-blue-200: 168 196 255;
+  --color-blue-300: 130 175 255;
+  --color-blue-400: 108 159 255;     /* dark-mode accent */
+  --color-blue-500: 90 143 255;      /* dark-mode accent-hover */
+  --color-blue-600: 70 120 225;
+  --color-blue-700: 50 95 190;       /* light-mode accent */
+  --color-blue-800: 35 70 150;
+  --color-blue-900: 22 48 110;
+
+  /* ══════════════════════════════════════════
+     Red — Danger / Error
+     ══════════════════════════════════════════ */
+  --color-red-50:  255 235 233;
+  --color-red-100: 255 210 205;
+  --color-red-200: 252 178 170;
+  --color-red-300: 248 140 132;
+  --color-red-400: 244 112 103;      /* dark-mode danger */
+  --color-red-500: 220 90 80;
+  --color-red-600: 190 68 60;        /* light-mode danger */
+  --color-red-700: 155 50 44;
+  --color-red-800: 120 36 32;
+  --color-red-900: 88 25 22;
+
+  /* ══════════════════════════════════════════
+     Amber — Warning
+     ══════════════════════════════════════════ */
+  --color-amber-50:  255 248 225;
+  --color-amber-100: 255 240 195;
+  --color-amber-200: 250 228 155;
+  --color-amber-300: 240 200 110;
+  --color-amber-400: 232 184 78;     /* dark-mode warning */
+  --color-amber-500: 210 165 60;
+  --color-amber-600: 185 142 42;
+  --color-amber-700: 155 115 30;     /* light-mode warning */
+  --color-amber-800: 118 88 22;
+  --color-amber-900: 82 62 15;
+
+  /* ══════════════════════════════════════════
+     Green — Success
+     ══════════════════════════════════════════ */
+  --color-green-50:  225 248 230;
+  --color-green-100: 190 238 200;
+  --color-green-200: 145 220 158;
+  --color-green-300: 90 200 105;
+  --color-green-400: 63 185 80;      /* dark-mode success */
+  --color-green-500: 50 160 68;
+  --color-green-600: 40 135 55;
+  --color-green-700: 30 110 44;      /* light-mode success */
+  --color-green-800: 22 85 35;
+  --color-green-900: 15 60 25;
+
+  /* ══════════════════════════════════════════
+     Slate — Backgrounds + Text
+     Unified scale: light end = text (dark theme)
+                    dark end = backgrounds (dark theme)
+                    Reversed usage in light theme.
+     ══════════════════════════════════════════ */
+  --color-slate-50:  245 247 250;    /* light-mode surface */
+  --color-slate-100: 230 237 243;    /* dark-mode text / light-mode bg */
+  --color-slate-200: 204 212 222;
+  --color-slate-300: 177 186 196;    /* dark-mode text-secondary */
+  --color-slate-400: 139 148 158;    /* dark-mode text-muted */
+  --color-slate-500: 125 133 144;    /* dark-mode text-dim (WCAG-adjusted) */
+  --color-slate-600: 90 100 115;     /* light-mode text-muted */
+  --color-slate-700: 65 74 86;       /* light-mode text-secondary */
+  --color-slate-800: 30 40 55;       /* dark-mode elevated-solid */
+  --color-slate-850: 22 31 43;       /* dark-mode card-solid / menu-bg */
+  --color-slate-900: 17 25 33;       /* dark-mode surface-solid */
+  --color-slate-950: 12 16 21;       /* dark-mode bg */
+
+  /* ══════════════════════════════════════════
+     Pure
+     ══════════════════════════════════════════ */
+  --color-white: 255 255 255;
+  --color-black: 0 0 0;
+
+  /* ══════════════════════════════════════════
+     Data Visualization — Fixed palette (hex)
+     Used in charts/SVGs. Same across all themes.
+     ══════════════════════════════════════════ */
+  --color-data-1:  #4EC9B0;
+  --color-data-2:  #6C9FFF;
+  --color-data-3:  #FFD740;
+  --color-data-4:  #B388FF;
+  --color-data-5:  #FF6E40;
+  --color-data-6:  #69F0AE;
+  --color-data-7:  #40C4FF;
+  --color-data-8:  #F48FB1;
+  --color-data-9:  #CE93D8;
+  --color-data-10: #80DEEA;
+}

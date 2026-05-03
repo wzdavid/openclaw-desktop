@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Desktop — Preview</title>
+  <style>
+    /* ═══════════════════════════════════════════════════════════
+       OpenClaw Desktop — Preview + Code Tabs
+       ═══════════════════════════════════════════════════════════ */
+    :root {
+      --bg-primary: #0d1117;
+      --bg-secondary: #161b22;
+      --bg-tertiary: #1c2128;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-hover: rgba(255, 255, 255, 0.12);
+      --text: #e6edf3;
+      --text-dim: rgba(255, 255, 255, 0.4);
+      --text-muted: rgba(255, 255, 255, 0.6);
+      --accent: #4EC9B0;
+      --accent-dim: rgba(78, 201, 176, 0.15);
+      --accent-hover: rgba(78, 201, 176, 0.25);
+      --success: #3fb950;
+      --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text);
+      font-family: -apple-system, 'Segoe UI', sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header (draggable) ── */
+    .header {
+      height: 40px;
+      min-height: 40px;
+      background: rgba(13, 17, 23, 0.95);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+      -webkit-app-region: drag;
+      user-select: none;
+    }
+
+    .type-badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      -webkit-app-region: no-drag;
+    }
+
+    .title {
+      font-size: 13px;
+      color: var(--text-dim);
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .header-btn {
+      -webkit-app-region: no-drag;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .header-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      border-color: var(--border-hover);
+    }
+
+    /* ── Tab Bar ── */
+    .tab-bar {
+      height: 36px;
+      min-height: 36px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: stretch;
+      padding: 0 12px;
+      gap: 2px;
+    }
+
+    .tab {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 14px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-dim);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      user-select: none;
+      position: relative;
+      top: 1px;
+    }
+
+    .tab:hover {
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .tab svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ── Content Panels ── */
+    .content-wrapper {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: none;
+    }
+
+    .panel.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Preview Panel ── */
+    #preview-panel iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: white;
+    }
+
+    #preview-panel .svg-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow: auto;
+      background: var(--bg-primary);
+    }
+
+    #preview-panel .svg-container svg {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    /* ── Code Panel ── */
+    .code-toolbar {
+      height: 36px;
+      min-height: 36px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+    }
+
+    .code-toolbar .info {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .code-toolbar .info .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.6;
+    }
+
+    .code-toolbar .info .modified {
+      color: #d29922;
+      font-size: 10px;
+      display: none;
+    }
+
+    .code-toolbar .info .modified.show {
+      display: inline;
+    }
+
+    .code-toolbar .actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tool-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-dim);
+    }
+
+    .tool-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      border-color: var(--border-hover);
+    }
+
+    .tool-btn.primary {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border-color: rgba(78, 201, 176, 0.25);
+    }
+
+    .tool-btn.primary:hover {
+      background: var(--accent-hover);
+      border-color: rgba(78, 201, 176, 0.4);
+    }
+
+    .tool-btn.success {
+      color: var(--success);
+      border-color: rgba(63, 185, 80, 0.3);
+    }
+
+    .tool-btn svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    /* ── Editor Area ── */
+    .editor-container {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .line-numbers {
+      min-width: 48px;
+      padding: 12px 0;
+      padding-right: 10px;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border);
+      text-align: right;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.65;
+      color: rgba(139, 124, 248, 0.2);
+      overflow: hidden;
+      user-select: none;
+      white-space: pre;
+    }
+
+    .code-editor {
+      flex: 1;
+      background: var(--bg-primary);
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.65;
+      padding: 12px 16px;
+      border: none;
+      outline: none;
+      resize: none;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+      caret-color: var(--accent);
+    }
+
+    .code-editor::selection {
+      background: rgba(78, 201, 176, 0.2);
+    }
+
+    .code-editor::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .code-editor::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .code-editor::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+    }
+
+    .code-editor::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Sync scrollbar for line numbers container */
+    .line-numbers::-webkit-scrollbar { display: none; }
+
+    /* ── Empty State ── */
+    .empty {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.12);
+      gap: 12px;
+    }
+
+    .empty .icon { font-size: 48px; }
+    .empty .text { font-size: 14px; }
+
+    /* ── Animations ── */
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade {
+      animation: fade-in 0.15s ease-out;
+    }
+
+    /* ── Toast (copy feedback) ── */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-hover);
+      color: var(--text);
+      padding: 8px 18px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.25s ease;
+      z-index: 100;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <div class="header">
+    <span class="type-badge" id="type-badge">—</span>
+    <span class="title" id="title">Preview</span>
+    <button class="header-btn" id="refresh-btn" onclick="handleRefresh()">↻ Refresh</button>
+  </div>
+
+  <!-- ── Tab Bar ── -->
+  <div class="tab-bar">
+    <div class="tab active" id="tab-preview" onclick="switchTab('preview')">
+      <!-- Eye icon -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
+      Preview
+    </div>
+    <div class="tab" id="tab-code" onclick="switchTab('code')">
+      <!-- Code icon -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="16 18 22 12 16 6"/>
+        <polyline points="8 6 2 12 8 18"/>
+      </svg>
+      Code
+    </div>
+  </div>
+
+  <!-- ── Content Panels ── -->
+  <div class="content-wrapper">
+
+    <!-- Preview Panel -->
+    <div class="panel active" id="preview-panel">
+      <div class="empty" id="preview-empty">
+        <div class="icon">🔮</div>
+        <div class="text">Waiting for artifact...</div>
+      </div>
+    </div>
+
+    <!-- Code Panel -->
+    <div class="panel" id="code-panel">
+      <!-- Toolbar -->
+      <div class="code-toolbar">
+        <div class="info">
+          <span class="dot"></span>
+          <span id="code-lang">—</span>
+          <span id="code-chars">0 chars</span>
+          <span class="modified" id="code-modified">● Modified</span>
+        </div>
+        <div class="actions">
+          <button class="tool-btn" id="btn-copy" onclick="handleCopy()">
+            <!-- Copy icon -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            <span>Copy</span>
+          </button>
+          <button class="tool-btn primary" id="btn-apply" onclick="handleApply()" style="display:none">
+            <!-- Play icon -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            <span>Apply</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Editor -->
+      <div class="editor-container">
+        <div class="line-numbers" id="line-numbers"></div>
+        <textarea class="code-editor" id="code-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ═══════════════════════════════════════════════════════════
+    // State
+    // ═══════════════════════════════════════════════════════════
+    var currentArtifact = null;    // { type, title, content }
+    var originalContent = '';       // Track original for "modified" indicator
+    var activeTab = 'preview';
+
+    // ═══════════════════════════════════════════════════════════
+    // Tab Switching
+    // ═══════════════════════════════════════════════════════════
+    function switchTab(tab) {
+      activeTab = tab;
+
+      // Update tab UI
+      document.getElementById('tab-preview').classList.toggle('active', tab === 'preview');
+      document.getElementById('tab-code').classList.toggle('active', tab === 'code');
+
+      // Update panels
+      document.getElementById('preview-panel').classList.toggle('active', tab === 'preview');
+      document.getElementById('code-panel').classList.toggle('active', tab === 'code');
+
+      // If switching to code, sync line numbers
+      if (tab === 'code') {
+        updateLineNumbers();
+        document.getElementById('code-editor').focus();
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // Artifact Rendering
+    // ═══════════════════════════════════════════════════════════
+    function renderArtifact(type, title, content) {
+      currentArtifact = { type: type, title: title, content: content };
+      originalContent = content;
+
+      // Update header
+      document.getElementById('type-badge').textContent = type.toUpperCase();
+      document.getElementById('title').textContent = title;
+      document.title = 'OpenClaw Desktop — ' + title;
+
+      // Render preview
+      renderPreview(type, content);
+
+      // Update code editor
+      var editor = document.getElementById('code-editor');
+      editor.value = content;
+      document.getElementById('code-lang').textContent = type.toUpperCase();
+      document.getElementById('code-chars').textContent = content.length.toLocaleString() + ' chars';
+      document.getElementById('code-modified').classList.remove('show');
+      document.getElementById('btn-apply').style.display = 'none';
+      updateLineNumbers();
+
+      // Remove empty state
+      var empty = document.getElementById('preview-empty');
+      if (empty) empty.remove();
+    }
+
+    function renderPreview(type, content) {
+      var container = document.getElementById('preview-panel');
+
+      // Clear everything except the empty placeholder
+      var children = Array.from(container.children);
+      children.forEach(function(child) {
+        if (child.id !== 'preview-empty') container.removeChild(child);
+      });
+
+      switch (type) {
+        case 'html':
+          var iframe = document.createElement('iframe');
+          iframe.sandbox = 'allow-scripts';
+          iframe.style.cssText = 'width:100%;height:100%;border:none;background:white';
+          iframe.srcdoc = content;
+          container.appendChild(iframe);
+          break;
+
+        case 'react':
+          // React + Babel for JSX support (wait for all scripts to load)
+          var escapedContent = content.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
+          var reactHtml = '<!DOCTYPE html><html><head>'
+            + '<meta charset="UTF-8">'
+            + '<style>body{margin:0;font-family:-apple-system,sans-serif;background:#0d1117;color:#e6edf3}'
+            + '#root{min-height:100vh;display:flex;align-items:center;justify-content:center}'
+            + '.loading{color:#4EC9B0}</style>'
+            + '</head><body>'
+            + '<div id="root"><div class="loading">Loading React...</div></div>'
+            + '<script>'
+            + 'var scriptsToLoad = ['
+            + '  "https://cdn.jsdelivr.net/npm/react@18/umd/react.development.js",'
+            + '  "https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.development.js",'
+            + '  "https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"'
+            + '];'
+            + 'var loaded = 0;'
+            + 'function onScriptLoad() {'
+            + '  loaded++;'
+            + '  if (loaded === scriptsToLoad.length) {'
+            + '    try {'
+            + '      var code = `' + escapedContent + '`;'
+            + '      var transformed = Babel.transform(code, { presets: ["react"] }).code;'
+            + '      eval(transformed);'
+            + '    } catch(e) {'
+            + '      document.getElementById("root").innerHTML = "<pre style=\\"color:#ff6b6b;padding:20px;white-space:pre-wrap\\">Error: " + e.message + "\\n\\n" + e.stack + "</pre>";'
+            + '      console.error(e);'
+            + '    }'
+            + '  }'
+            + '}'
+            + 'scriptsToLoad.forEach(function(src) {'
+            + '  var s = document.createElement("script");'
+            + '  s.src = src;'
+            + '  s.onload = onScriptLoad;'
+            + '  s.onerror = function() { document.getElementById("root").innerHTML = "<pre style=\\"color:#ff6b6b;padding:20px\\">Failed to load: " + src + "</pre>"; };'
+            + '  document.head.appendChild(s);'
+            + '});'
+            + '<\/script>'
+            + '</body></html>';
+          var iframe2 = document.createElement('iframe');
+          iframe2.sandbox = 'allow-scripts allow-same-origin';
+          iframe2.style.cssText = 'width:100%;height:100%;border:none;background:#0d1117';
+          iframe2.srcdoc = reactHtml;
+          container.appendChild(iframe2);
+          break;
+
+        case 'svg':
+          var svgDiv = document.createElement('div');
+          svgDiv.className = 'svg-container';
+          svgDiv.innerHTML = content;
+          container.appendChild(svgDiv);
+          break;
+
+        case 'mermaid':
+          var mermaidHtml = '<!DOCTYPE html><html><head>'
+            + '<meta charset="UTF-8">'
+            + '<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"><\/script>'
+            + '<style>body{margin:20px;background:#0d1117;display:flex;justify-content:center;align-items:center;min-height:calc(100vh - 40px)}'
+            + '.mermaid{background:transparent}</style>'
+            + '</head><body>'
+            + '<div class="mermaid">' + content + '</div>'
+            + '<script>mermaid.initialize({startOnLoad:true,theme:"dark"});<\/script>'
+            + '</body></html>';
+          var iframe3 = document.createElement('iframe');
+          iframe3.sandbox = 'allow-scripts allow-same-origin';
+          iframe3.style.cssText = 'width:100%;height:100%;border:none;background:#0d1117';
+          iframe3.srcdoc = mermaidHtml;
+          container.appendChild(iframe3);
+          break;
+
+        case 'code':
+        default:
+          var codeDiv = document.createElement('div');
+          codeDiv.style.cssText = 'width:100%;height:100%;overflow:auto;padding:20px';
+          var pre = document.createElement('pre');
+          pre.style.cssText = 'background:#161b22;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:16px;overflow-x:auto;color:#e6edf3;font-family:var(--font-mono);font-size:13px;line-height:1.6;white-space:pre-wrap;word-wrap:break-word';
+          pre.textContent = content;
+          codeDiv.appendChild(pre);
+          container.appendChild(codeDiv);
+          break;
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // Line Numbers
+    // ═══════════════════════════════════════════════════════════
+    function updateLineNumbers() {
+      var editor = document.getElementById('code-editor');
+      var lines = editor.value.split('\n').length;
+      var nums = '';
+      for (var i = 1; i <= lines; i++) {
+        nums += i + '\n';
+      }
+      document.getElementById('line-numbers').textContent = nums;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // Editor Events
+    // ═══════════════════════════════════════════════════════════
+    (function() {
+      var editor = document.getElementById('code-editor');
+      var lineNums = document.getElementById('line-numbers');
+
+      // Sync scroll between editor and line numbers
+      editor.addEventListener('scroll', function() {
+        lineNums.scrollTop = editor.scrollTop;
+      });
+
+      // Update line numbers and modified state on input
+      editor.addEventListener('input', function() {
+        updateLineNumbers();
+
+        var charCount = editor.value.length;
+        document.getElementById('code-chars').textContent = charCount.toLocaleString() + ' chars';
+
+        // Show/hide modified indicator and Apply button
+        var isModified = editor.value !== originalContent;
+        document.getElementById('code-modified').classList.toggle('show', isModified);
+        document.getElementById('btn-apply').style.display = isModified ? '' : 'none';
+      });
+
+      // Tab key inserts 2 spaces instead of switching focus
+      editor.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          var start = editor.selectionStart;
+          var end = editor.selectionEnd;
+
+          if (e.shiftKey) {
+            // Shift+Tab: remove indent from selected lines
+            var value = editor.value;
+            var lineStart = value.lastIndexOf('\n', start - 1) + 1;
+            var selectedText = value.substring(lineStart, end);
+            var dedented = selectedText.replace(/^  /gm, '');
+            var diff = selectedText.length - dedented.length;
+            editor.value = value.substring(0, lineStart) + dedented + value.substring(end);
+            editor.selectionStart = Math.max(lineStart, start - (value.substring(lineStart, start).length - value.substring(lineStart, start).replace(/^  /, '').length));
+            editor.selectionEnd = end - diff;
+          } else {
+            // Tab: insert 2 spaces
+            editor.value = editor.value.substring(0, start) + '  ' + editor.value.substring(end);
+            editor.selectionStart = editor.selectionEnd = start + 2;
+          }
+
+          // Trigger input event for line numbers update
+          editor.dispatchEvent(new Event('input'));
+        }
+
+        // Ctrl+S / Cmd+S: Apply changes
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+          e.preventDefault();
+          handleApply();
+        }
+
+        // Ctrl+Shift+C: Copy all
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'C') {
+          e.preventDefault();
+          handleCopy();
+        }
+      });
+    })();
+
+    // ═══════════════════════════════════════════════════════════
+    // Actions
+    // ═══════════════════════════════════════════════════════════
+    function handleCopy() {
+      var editor = document.getElementById('code-editor');
+      var text = editor.value;
+
+      navigator.clipboard.writeText(text).then(function() {
+        showToast('✓ Copied to clipboard');
+      }).catch(function() {
+        // Fallback: select all text
+        editor.select();
+        document.execCommand('copy');
+        showToast('✓ Copied to clipboard');
+      });
+    }
+
+    function handleApply() {
+      if (!currentArtifact) return;
+
+      var editor = document.getElementById('code-editor');
+      var newContent = editor.value;
+
+      // Update artifact state
+      currentArtifact.content = newContent;
+      originalContent = newContent;
+
+      // Re-render preview
+      renderPreview(currentArtifact.type, newContent);
+
+      // Reset modified state
+      document.getElementById('code-modified').classList.remove('show');
+      document.getElementById('btn-apply').style.display = 'none';
+
+      // Switch to preview to show the result
+      switchTab('preview');
+
+      showToast('▶ Changes applied');
+    }
+
+    function handleRefresh() {
+      if (currentArtifact) {
+        renderPreview(currentArtifact.type, currentArtifact.content);
+        showToast('↻ Refreshed');
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // Toast Notification
+    // ═══════════════════════════════════════════════════════════
+    var toastTimeout = null;
+
+    function showToast(message) {
+      var toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(function() {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // IPC: Receive artifact from main process
+    // ═══════════════════════════════════════════════════════════
+    if (window.electronAPI && window.electronAPI.onArtifact) {
+      window.electronAPI.onArtifact(function(data) {
+        renderArtifact(data.type, data.title, data.content);
+      });
+    }
+  </script>
+</body>
+</html>

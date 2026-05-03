@@ -1,0 +1,110 @@
+/* ═══════════════════════════════════════════════════════════
+   Theme: AEGIS Dark (Default)
+
+   All values reference primitives.css scales via var().
+   To create a new theme: copy this file, pick different scale steps.
+   All --aegis-* variables must be defined.
+
+   Dark theme picks: teal 400-600, slate 100-500 (text), slate 800-950 (bg)
+   ═══════════════════════════════════════════════════════════ */
+
+:root, [data-theme="aegis-dark"] {
+  /* ── Backgrounds ── */
+  --aegis-bg:             rgb(var(--color-slate-950));
+  --aegis-surface:        rgb(var(--color-white) / 0.03);
+  --aegis-elevated:       rgb(var(--color-white) / 0.05);
+  --aegis-card:           rgb(var(--color-white) / 0.035);
+  --aegis-bg-solid:       rgb(var(--color-slate-950));
+  --aegis-surface-solid:  rgb(var(--color-slate-900));
+  --aegis-elevated-solid: rgb(var(--color-slate-800));
+  --aegis-card-solid:     rgb(var(--color-slate-850));
+  --aegis-chrome:         rgb(var(--color-white) / 0.03);
+
+  /* ── Borders ── */
+  --aegis-border:         rgb(var(--color-white) / 0.08);
+  --aegis-border-hover:   rgb(var(--color-white) / 0.14);
+  --aegis-border-active:  rgb(var(--color-white) / 0.20);
+
+  /* ── Text (space-separated RGB for Tailwind alpha) ── */
+  --aegis-text:           var(--color-slate-100);
+  --aegis-text-secondary: var(--color-slate-300);
+  --aegis-text-muted:     var(--color-slate-400);
+  --aegis-text-dim:       var(--color-slate-500);
+
+  /* ── Primary — Teal ── */
+  --aegis-primary:        var(--color-teal-400);
+  --aegis-primary-hover:  var(--color-teal-500);
+  --aegis-primary-deep:   var(--color-teal-600);
+  --aegis-primary-glow:   rgb(var(--color-teal-400) / 0.16);
+  --aegis-primary-surface:rgb(var(--color-teal-400) / 0.08);
+
+  /* ── Accent — Blue ── */
+  --aegis-accent:         var(--color-blue-400);
+  --aegis-accent-hover:   var(--color-blue-500);
+  --aegis-accent-glow:    rgb(var(--color-blue-400) / 0.14);
+
+  /* ── Status ── */
+  --aegis-danger:         var(--color-red-400);
+  --aegis-danger-surface: rgb(var(--color-red-400) / 0.10);
+  --aegis-warning:        var(--color-amber-400);
+  --aegis-warning-surface:rgb(var(--color-amber-400) / 0.10);
+  --aegis-success:        var(--color-green-400);
+  --aegis-success-surface:rgb(var(--color-green-400) / 0.10);
+
+  /* ── Messages ── */
+  --aegis-user-bubble:    rgb(var(--color-teal-400) / 0.12);
+  --aegis-user-border:    rgb(var(--color-teal-400) / 0.20);
+  --aegis-bot-bubble:     rgb(var(--color-white) / 0.04);
+  --aegis-bot-border:     rgb(var(--color-white) / 0.07);
+
+  /* ── Glass ── */
+  --aegis-glass:          rgb(var(--color-white) / 0.04);
+  --aegis-glass-border:   rgb(var(--color-white) / 0.08);
+  --aegis-glass-hover:    rgb(var(--color-white) / 0.08);
+
+  /* ── Overlay ── */
+  --aegis-overlay:        var(--color-white);
+
+  /* ── Scrollbar ── */
+  --aegis-scrollbar:      rgb(var(--color-white) / 0.08);
+  --aegis-scrollbar-hover:rgb(var(--color-white) / 0.15);
+
+  /* ── Selection ── */
+  --aegis-selection:      rgb(var(--color-teal-400) / 0.28);
+  --aegis-selection-text: rgb(var(--color-slate-100));
+
+  /* ── Body ── */
+  --aegis-body:           rgb(var(--color-slate-950));
+
+  /* ── Frosted ── */
+  --aegis-bg-frosted:     rgb(var(--color-slate-950) / 0.95);
+  --aegis-bg-frosted-60:  rgb(var(--color-slate-950) / 0.6);
+
+  /* ── Code ── */
+  --aegis-code-bg:        rgb(var(--color-slate-950));
+  --aegis-code-header:    rgb(var(--color-slate-900));
+
+  /* ── Data Visualization ── */
+  --aegis-data-1:  var(--color-data-1);
+  --aegis-data-2:  var(--color-data-2);
+  --aegis-data-3:  var(--color-data-3);
+  --aegis-data-4:  var(--color-data-4);
+  --aegis-data-5:  var(--color-data-5);
+  --aegis-data-6:  var(--color-data-6);
+  --aegis-data-7:  var(--color-data-7);
+  --aegis-data-8:  var(--color-data-8);
+  --aegis-data-9:  var(--color-data-9);
+  --aegis-data-10: var(--color-data-10);
+
+  /* ── Menus & Dropdowns ── */
+  --aegis-menu-bg:         rgb(var(--color-slate-850));
+  --aegis-menu-hover:      rgb(var(--color-white) / 0.08);
+  --aegis-menu-active:     rgb(var(--color-teal-400) / 0.15);
+  --aegis-menu-border:     rgb(var(--color-white) / 0.10);
+  --aegis-menu-shadow:     0 8px 24px rgb(var(--color-black) / 0.5);
+  --aegis-menu-text:       rgb(var(--color-slate-100));
+  --aegis-menu-text-muted: rgb(var(--color-slate-500));
+
+  /* ── Button text (dark on bright teal — WCAG 9.5:1) ── */
+  --aegis-btn-primary-text: rgb(var(--color-slate-950));
+}

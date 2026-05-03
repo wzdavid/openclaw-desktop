@@ -1,0 +1,494 @@
+@import './primitives.css';
+@import './terminal.css';
+@import './themes/aegis-dark.css';
+@import './themes/aegis-light.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--aegis-scrollbar); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--aegis-scrollbar-hover); }
+
+  /* ── Selection ── */
+  ::selection { background: var(--aegis-selection); color: var(--aegis-selection-text); }
+
+  /* ── Select / Option — native dropdown styling ── */
+  select {
+    background-color: var(--aegis-menu-bg);
+    color: var(--aegis-menu-text);
+  }
+  option {
+    background-color: var(--aegis-menu-bg);
+    color: var(--aegis-menu-text);
+  }
+  option:checked {
+    background-color: var(--aegis-menu-active);
+  }
+
+  /* ── Focus ── */
+  :focus:not(:focus-visible) { outline: none; }
+  :focus-visible {
+    outline: 2px solid rgb(var(--aegis-primary) / 0.4);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /* ── Global Transitions ── */
+  *, *::before, *::after {
+    transition-property: background-color, border-color, color, opacity, box-shadow;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ── Body ── */
+  body { background: var(--aegis-body); overflow: hidden; }
+}
+
+@layer components {
+  /* ── Glass Effect ── */
+  .glass {
+    background: var(--aegis-glass);
+    backdrop-filter: blur(20px) saturate(1.2);
+    -webkit-backdrop-filter: blur(20px) saturate(1.2);
+    border: 1px solid var(--aegis-glass-border);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  }
+
+  .glass-hover:hover {
+    background: var(--aegis-glass-hover);
+    border-color: var(--aegis-border-hover);
+    transform: translateY(-2px);
+  }
+
+  .glass-subtle {
+    background: rgb(var(--aegis-overlay) / 0.02);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* ── Chrome (sidebar/titlebar) ── */
+  .chrome-bg {
+    background: var(--aegis-chrome);
+  }
+
+  /* ── Title Bar ── */
+  .drag-region { -webkit-app-region: drag; app-region: drag; }
+  .no-drag { -webkit-app-region: no-drag; app-region: no-drag; }
+
+  /* ── Glow Border ── */
+  .glow-border { position: relative; }
+  .glow-border::after {
+    content: '';
+    position: absolute; inset: -1px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgb(var(--color-teal-400) / 0.2), rgb(var(--color-blue-400) / 0.1));
+    z-index: -1; opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .glow-border:hover::after { opacity: 1; }
+
+  /* ── Divider ── */
+  .divider-gradient {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgb(var(--color-teal-400) / 0.2), transparent);
+  }
+
+  /* ── Status Dot Glow (active green dots glow) ── */
+  .status-glow-green {
+    box-shadow: 0 0 8px rgb(var(--color-green-400) / 0.5);
+  }
+  .status-glow-teal {
+    box-shadow: 0 0 8px rgb(var(--color-teal-400) / 0.5);
+  }
+  .status-glow-red {
+    box-shadow: 0 0 8px rgb(var(--color-red-400) / 0.5);
+  }
+
+  /* ── Background Ambient Glow (from conceptual JSX) ── */
+  .ambient-glow-teal {
+    position: fixed; top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgb(var(--color-teal-400) / 0.04) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  .ambient-glow-purple {
+    position: fixed; bottom: -300px; left: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgb(var(--color-blue-400) / 0.03) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── Markdown ── */
+  .markdown-body { line-height: 1.75; word-wrap: break-word; letter-spacing: 0.01em; overflow-x: hidden; max-width: 100%; }
+  .markdown-body p { margin-bottom: 0.6em; }
+  .markdown-body p:last-child { margin-bottom: 0; }
+  .markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4 {
+    font-weight: 600; margin-top: 1.1em; margin-bottom: 0.5em;
+    color: rgb(var(--aegis-text)); letter-spacing: -0.01em;
+  }
+  .markdown-body h1 { font-size: 1.35em; }
+  .markdown-body h2 { font-size: 1.2em; }
+  .markdown-body h3 { font-size: 1.08em; }
+  .markdown-body ul, .markdown-body ol { padding-right: 1.5em; margin-bottom: 0.6em; }
+  .markdown-body li { margin-bottom: 0.3em; }
+  .markdown-body li::marker { color: rgb(var(--aegis-primary)); }
+  .markdown-body blockquote {
+    border-right: 3px solid rgb(var(--aegis-primary) / 0.4);
+    padding: 0.5em 1em; margin-right: 0;
+    color: rgb(var(--aegis-text-muted)); font-style: italic;
+    background: rgb(var(--aegis-primary) / 0.03);
+    border-radius: 0 8px 8px 0;
+  }
+  .markdown-body .table-wrapper {
+    overflow-x: auto;
+    margin: 0.6em 0;
+    border-radius: 8px;
+    border: 1px solid var(--aegis-border);
+    scrollbar-width: thin;
+    scrollbar-color: var(--aegis-scrollbar) transparent;
+  }
+  .markdown-body .table-wrapper::-webkit-scrollbar { height: 4px; }
+  .markdown-body .table-wrapper::-webkit-scrollbar-track { background: transparent; }
+  .markdown-body .table-wrapper::-webkit-scrollbar-thumb { background: var(--aegis-scrollbar); border-radius: 4px; }
+  .markdown-body .table-wrapper table { margin: 0; border-radius: 0; border: none; }
+  .markdown-body .table-wrapper th:first-child, .markdown-body .table-wrapper td:first-child { border-inline-start: none; }
+  .markdown-body .table-wrapper th:last-child, .markdown-body .table-wrapper td:last-child { border-inline-end: none; }
+  .markdown-body .table-wrapper tr:last-child td { border-bottom: none; }
+  .markdown-body .table-wrapper thead tr:first-child th { border-top: none; }
+  .markdown-body table { width: 100%; border-collapse: collapse; margin: 0.6em 0; font-size: 0.9em; border-radius: 8px; overflow: hidden; }
+  .markdown-body th, .markdown-body td { border: 1px solid var(--aegis-border); padding: 0.5em 0.75em; text-align: right; white-space: nowrap; }
+  .markdown-body th { background: rgb(var(--aegis-overlay) / 0.04); font-weight: 600; color: rgb(var(--aegis-text-secondary)); font-size: 0.88em; text-transform: uppercase; letter-spacing: 0.04em; }
+  .markdown-body tr:nth-child(even) { background: rgb(var(--aegis-overlay) / 0.015); }
+  .markdown-body tr:hover { background: rgb(var(--aegis-primary) / 0.04); }
+  .markdown-body pre { max-width: 100%; white-space: pre-wrap !important; word-break: break-word !important; overflow-wrap: break-word !important; }
+  .markdown-body pre code { white-space: pre-wrap !important; word-break: break-word !important; }
+  .markdown-body pre span { word-break: break-word !important; }
+  .markdown-body code:not(pre code) {
+    background: rgb(var(--aegis-primary) / 0.10); border: 1px solid rgb(var(--aegis-primary) / 0.15);
+    padding: 0.15em 0.45em; border-radius: 5px; font-size: 0.87em;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace; color: rgb(var(--aegis-primary));
+    word-break: break-all;
+  }
+  .markdown-body a { color: rgb(var(--aegis-primary)); text-decoration: none; border-bottom: 1px solid rgb(var(--aegis-primary) / 0.2); transition: all 0.2s; }
+  .markdown-body a:hover { color: rgb(var(--aegis-primary-hover)); border-bottom-color: rgb(var(--aegis-primary) / 0.5); }
+  .markdown-body img { max-width: 100%; border-radius: 10px; margin: 0.5em 0; border: 1px solid var(--aegis-border); }
+  .markdown-body hr { border: none; height: 1px; background: linear-gradient(90deg, transparent, rgb(var(--aegis-primary) / 0.2), transparent); margin: 1.2em 0; }
+  .markdown-body strong { color: rgb(var(--aegis-text)); font-weight: 600; }
+  .markdown-body em { color: rgb(var(--aegis-text-secondary)); }
+}
+
+@layer utilities {
+  .scrollbar-hidden { -ms-overflow-style: none; scrollbar-width: none; }
+  .scrollbar-hidden::-webkit-scrollbar { display: none; }
+
+  /* Text gradient */
+  .text-gradient {
+    background: linear-gradient(135deg, rgb(var(--color-teal-400)) 0%, rgb(var(--color-blue-400)) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ANIMATIONS (from conceptual design JSX)
+   ═══════════════════════════════════════════════════════════ */
+
+/* Status dot pulse — active dots glow/fade */
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Slide up — for chat widget and panels */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Glow pulse — for connected indicators */
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 6px rgb(var(--color-green-400) / 0.3); }
+  50% { box-shadow: 0 0 14px rgb(var(--color-green-400) / 0.6); }
+}
+
+/* FAB rotate — chat widget toggle */
+@keyframes fabRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(45deg); }
+}
+
+.animate-status-pulse {
+  animation: statusPulse 2s ease-in-out infinite;
+}
+
+.animate-glow-pulse {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+/* Shimmer — running indicator bar */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CONCEPTUAL DESIGN — Enhanced Glow & Light Effects
+   ═══════════════════════════════════════════════════════════ */
+
+/* Icon glow halo — for active nav/stat icons */
+.icon-halo-teal {
+  filter: drop-shadow(0 0 4px rgb(var(--color-teal-400) / 0.4));
+  animation: iconGlow 2.5s ease-in-out infinite;
+}
+.icon-halo-green {
+  filter: drop-shadow(0 0 4px rgb(var(--color-green-400) / 0.4));
+}
+.icon-halo-accent {
+  filter: drop-shadow(0 0 4px rgb(var(--color-blue-400) / 0.4));
+}
+
+/* Active dot beacon — radiating ring pulse */
+.dot-beacon {
+  position: relative;
+}
+.dot-beacon::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: transparent;
+  animation: beacon 2s ease-in-out infinite;
+}
+
+/* Card shimmer edge — light streak across top */
+.card-shimmer-edge {
+  position: relative;
+  overflow: hidden;
+}
+.card-shimmer-edge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(var(--color-teal-400) / 0.0) 20%,
+    rgb(var(--color-teal-400) / 0.15) 50%,
+    rgb(var(--color-teal-400) / 0.0) 80%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmerEdge 4s ease-in-out infinite;
+}
+
+/* Toggle knob glow (conceptual: active toggles glow) */
+.toggle-glow-teal {
+  box-shadow: 0 0 8px rgb(var(--color-teal-400) / 0.5), 0 0 16px rgb(var(--color-teal-400) / 0.2);
+}
+.toggle-glow-off {
+  box-shadow: none;
+}
+
+/* FAB beacon — floating action button pulsing glow */
+.fab-glow {
+  box-shadow: 0 8px 30px rgb(var(--color-teal-400) / 0.25);
+  animation: fabBeacon 2.5s ease-in-out infinite;
+}
+@keyframes fabBeacon {
+  0%, 100% { box-shadow: 0 8px 30px rgb(var(--color-teal-400) / 0.2); }
+  50% { box-shadow: 0 8px 40px rgb(var(--color-teal-400) / 0.4), 0 0 20px rgb(var(--color-teal-400) / 0.15); }
+}
+
+/* Agent avatar glow ring — active agents have pulsing border */
+.agent-glow-ring {
+  box-shadow: 0 0 0 2px rgb(var(--color-teal-400) / 0.15), 0 0 12px rgb(var(--color-teal-400) / 0.1);
+  animation: agentGlow 3s ease-in-out infinite;
+}
+@keyframes agentGlow {
+  0%, 100% { box-shadow: 0 0 0 2px rgb(var(--color-teal-400) / 0.1), 0 0 8px rgb(var(--color-teal-400) / 0.05); }
+  50% { box-shadow: 0 0 0 3px rgb(var(--color-teal-400) / 0.2), 0 0 16px rgb(var(--color-teal-400) / 0.15); }
+}
+
+/* Progress bar glow shadow */
+.progress-glow-teal {
+  box-shadow: 0 0 8px rgb(var(--color-teal-400) / 0.3);
+}
+.progress-glow-warning {
+  box-shadow: 0 0 8px rgb(var(--color-amber-400) / 0.3);
+}
+.progress-glow-danger {
+  box-shadow: 0 0 8px rgb(var(--color-red-400) / 0.3);
+}
+
+/* Stat number glow text */
+.text-glow-teal {
+  text-shadow: 0 0 12px rgb(var(--color-teal-400) / 0.3);
+}
+.text-glow-green {
+  text-shadow: 0 0 12px rgb(var(--color-green-400) / 0.3);
+}
+.text-glow-accent {
+  text-shadow: 0 0 12px rgb(var(--color-blue-400) / 0.3);
+}
+
+/* Connected status enhanced glow */
+.connected-glow {
+  animation: connectedPulse 2s ease-in-out infinite;
+}
+@keyframes connectedPulse {
+  0%, 100% {
+    box-shadow: 0 0 4px rgb(var(--color-green-400) / 0.4);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 10px rgb(var(--color-green-400) / 0.7), 0 0 20px rgb(var(--color-green-400) / 0.2);
+    opacity: 0.7;
+  }
+}
+
+/* Nav active icon background glow */
+.nav-icon-active-glow {
+  background: rgb(var(--color-teal-400) / 0.08);
+  box-shadow: inset 0 0 12px rgb(var(--color-teal-400) / 0.06), 0 0 8px rgb(var(--color-teal-400) / 0.08);
+}
+
+/* Sparkline endpoint pulse */
+@keyframes sparkDot {
+  0%, 100% { r: 2.5; opacity: 1; }
+  50% { r: 4; opacity: 0.6; }
+}
+.spark-dot-pulse {
+  animation: sparkDot 2s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Dashboard Pulse HUD — Waveform Animations
+   ═══════════════════════════════════════════════════════════ */
+
+/* Wave horizontal scroll (seamless loop) */
+@keyframes waveScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Scan line sweeping across the waveform (RTL: right to left) */
+@keyframes waveScan {
+  0% { right: 0; opacity: 0; }
+  5% { opacity: 1; }
+  95% { opacity: 1; }
+  100% { right: 100%; opacity: 0; }
+}
+
+/* Section particle line (glowing dot traveling along divider) */
+@keyframes particleLine {
+  0% { right: -30px; }
+  100% { right: calc(100% + 30px); }
+}
+
+/* ═══ ThinkingBubble — shimmer border while streaming ═══ */
+.thinking-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.thinking-shimmer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(var(--aegis-accent) / 0.15) 30%,
+    rgb(var(--aegis-accent) / 0.3) 50%,
+    rgb(var(--aegis-accent) / 0.15) 70%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: thinking-border-shimmer 2s linear infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+@keyframes thinking-border-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ═══ Agent Settings Slider ═══ */
+.aegis-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgb(var(--aegis-primary));
+  cursor: pointer;
+  border: 2px solid var(--aegis-bg-solid);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.2);
+}
+.aegis-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgb(var(--aegis-primary));
+  cursor: pointer;
+  border: 2px solid var(--aegis-bg-solid);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.2);
+}
+
+/* ═══ Calendar shared utilities ═══ */
+.field-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--aegis-elevated);
+  border: 1px solid var(--aegis-border);
+  color: var(--aegis-text);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.field-input:focus { border-color: var(--aegis-primary); }
+.field-input:disabled { opacity: 0.5; cursor: not-allowed; }
+.field-input option { background: var(--aegis-elevated-solid); color: var(--aegis-text); }
+
+.btn-secondary {
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.75rem;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--aegis-elevated);
+  color: var(--aegis-text-muted);
+  border: 1px solid var(--aegis-border);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-secondary:hover { border-color: var(--aegis-border-hover); color: var(--aegis-text); }
+
+/* ═══ Mission Control (CronMonitor) ═══ */
+@keyframes mc-err-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+@keyframes mc-bar-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes mc-dot-ping { 0%, 100% { transform: scale(1); opacity: .8; } 50% { transform: scale(1.5); opacity: 0; } }
+
+/* Responsive 3-column → 2-column → 1-column */
+.mc-grid-main { grid-template-columns: 1fr 1fr 320px; }
+@media (max-width: 1100px) {
+  .mc-grid-main { grid-template-columns: 1fr 320px; }
+  .mc-grid-main > :nth-child(2) { display: none; } /* hide clock */
+}
+@media (max-width: 768px) {
+  .mc-grid-main { grid-template-columns: 1fr; }
+  .mc-grid-main > :nth-child(2) { display: none; }
+}

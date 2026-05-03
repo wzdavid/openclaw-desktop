@@ -1,0 +1,11 @@
+/* ═══════════════════════════════════════════════════════════
+   Terminal — Always black, never themed
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --terminal-bg:        #000000;
+  --terminal-text:      #cccccc;
+  --terminal-cursor:    #ffffff;
+  --terminal-selection: rgba(255, 255, 255, 0.2);
+  --terminal-border:    rgba(255, 255, 255, 0.06);
+}

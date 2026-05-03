@@ -1,0 +1,11 @@
+# Default owners for all files
+* @wzdavid
+
+# Workflows and release pipeline
+.github/workflows/* @wzdavid
+
+# Electron main process and updater
+electron/* @wzdavid
+
+# Release/build docs
+docs/build-release/* @wzdavid

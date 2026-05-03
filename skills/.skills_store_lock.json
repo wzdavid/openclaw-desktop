@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "skills": {
+    "humanizer-zh": {
+      "name": "humanizer-zh",
+      "zip_url": "https://lightmake.site/api/v1/download?slug=humanizer-zh",
+      "source": "skillhub",
+      "version": "1.0.0"
+    },
+    "ai-humanizer-cn": {
+      "name": "AI Humanizer CN - 中文 AI 文本拟人优化",
+      "zip_url": "https://lightmake.site/api/v1/download?slug=ai-humanizer-cn",
+      "source": "skillhub",
+      "version": "3.1.0"
+    },
+    "summarize": {
+      "name": "Summarize",
+      "zip_url": "https://lightmake.site/api/v1/download?slug=summarize",
+      "source": "skillhub",
+      "version": "1.0.0"
+    }
+  }
+}
