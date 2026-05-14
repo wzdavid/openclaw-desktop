@@ -484,23 +484,6 @@ export const MessageBubble = memo(function MessageBubble({ block, onResend, onRe
             </div>
           )}
 
-          {/* Quick Reply buttons from history (inline rendering) */}
-          {block.quickReplies && block.quickReplies.length > 0 && !block.isStreaming && (
-            <div className="flex flex-wrap gap-2 mt-3 pt-2.5 border-t border-[rgb(var(--aegis-overlay)/0.06)]">
-              {block.quickReplies.map((btn, i) => (
-                <button
-                  key={i}
-                  onClick={() => onResend?.(btn.value)}
-                  className="px-3 py-1.5 rounded-full text-[12px] font-medium transition-all
-                    bg-aegis-primary/10 border border-aegis-primary/20 text-aegis-primary
-                    hover:bg-aegis-primary/20 hover:border-aegis-primary/35 active:scale-95"
-                >
-                  {btn.text}
-                </button>
-              ))}
-            </div>
-          )}
-
           {/* Artifacts (pre-parsed by ContentParser) */}
           {block.artifacts.map((art, idx) => (
             <ArtifactCard key={`art-${idx}`} artifact={art} />

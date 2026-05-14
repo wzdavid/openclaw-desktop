@@ -12,8 +12,7 @@ import { projectResponseGroupToRenderBlocks } from '@/processing/projectResponse
 import { MessageBubble } from './MessageBubble';
 import { ToolCallBubble } from './ToolCallBubble';
 import { ThinkingBubble } from './ThinkingBubble';
-import { ArtifactResultCard, DecisionCard, FileResultCard, SessionEventCard, WorkshopEventCard } from './ResultCards';
-import { SystemNoteBubble } from './SystemNoteBubble';
+import { DecisionCard, FileResultCard, SessionEventCard, WorkshopEventCard } from './ResultCards';
 import { MessageInput } from './MessageInput';
 import { TypingIndicator } from './TypingIndicator';
 import { InlineButtonBar } from './InlineButtonBar';
@@ -28,7 +27,6 @@ const HISTORY_BACKGROUND_RETRY_BASE_MS = 30_000;
 const HISTORY_BACKGROUND_RETRY_MAX_MS = 120_000;
 const HISTORY_STARTUP_RETRY_BASE_MS = 3_000;
 const HISTORY_STARTUP_RETRY_MAX_MS = 12_000;
-const HISTORY_INITIAL_LOAD_DELAY_MS = 4_000;
 const DEFAULT_GATEWAY_WS_URL = 'ws://127.0.0.1:18789';
 
 interface HistoryMeta {
@@ -215,7 +213,6 @@ export function ChatView() {
     tailRenderBlock?.type || '',
     tailRenderBlock?.type === 'tool' ? (tailRenderBlock.output?.length || 0) : 0,
     tailRenderBlock?.type === 'thinking' ? tailRenderBlock.content.length : 0,
-    tailRenderBlock?.type === 'system-note' ? tailRenderBlock.content.length : 0,
     thinkingRunId || '',
     thinkingText.length,
     isTyping ? 'typing' : 'idle',
@@ -288,6 +285,12 @@ export function ChatView() {
             source: 'cache',
           },
         }));
+        const boot = useBootSequenceStore.getState();
+        const shouldTrackConversationStage =
+          boot.stages.conversation.status === 'pending' || boot.stages.conversation.status === 'running';
+        if (shouldTrackConversationStage && !options?.background) {
+          boot.markStageCompleted('conversation', `Recent conversation loaded from cache (${cached.length} messages)`);
+        }
         return;
       }
 
@@ -475,34 +478,14 @@ export function ChatView() {
   // Auto-load history when connected and the active session changes (tab switch).
   // loadHistory already checks the per-session cache first, so repeated calls are cheap.
   const prevSessionRef = useRef<string | null>(null);
-  const initialHistoryLoadDoneRef = useRef(false);
-  const initialHistoryLoadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (!connected) return;
     // Load on first connect, or whenever the active session changes.
     if (prevSessionRef.current !== activeSessionKey || messages.length === 0) {
       prevSessionRef.current = activeSessionKey;
-      const shouldDelayInitialLoad = !initialHistoryLoadDoneRef.current && messages.length === 0;
-      if (shouldDelayInitialLoad) {
-        if (initialHistoryLoadTimerRef.current) clearTimeout(initialHistoryLoadTimerRef.current);
-        initialHistoryLoadTimerRef.current = setTimeout(() => {
-          initialHistoryLoadTimerRef.current = null;
-          initialHistoryLoadDoneRef.current = true;
-          void loadHistory(undefined, { force: true, background: true });
-        }, HISTORY_INITIAL_LOAD_DELAY_MS);
-      } else {
-        initialHistoryLoadDoneRef.current = true;
-        void loadHistory();
-      }
+      void loadHistory();
     }
   }, [connected, activeSessionKey, messages.length, loadHistory]);
-
-  useEffect(
-    () => () => {
-      if (initialHistoryLoadTimerRef.current) clearTimeout(initialHistoryLoadTimerRef.current);
-    },
-    [],
-  );
 
   // Register loadHistory in store so MessageInput can trigger it before first send
   useEffect(() => {
@@ -628,9 +611,6 @@ export function ChatView() {
       case 'thinking':
         return <ThinkingBubble content={block.content} />;
 
-      case 'artifact':
-        return <ArtifactResultCard artifact={block.artifact} />;
-
       case 'file-output':
         return <FileResultCard files={block.files} />;
 
@@ -642,9 +622,6 @@ export function ChatView() {
 
       case 'session-event':
         return <SessionEventCard event={block.event} />;
-
-      case 'system-note':
-        return <SystemNoteBubble content={block.content} />;
 
       case 'message':
         return (

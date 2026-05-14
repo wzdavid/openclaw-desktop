@@ -1,4 +1,16 @@
-import type { MetaItem, RenderBlock, ToolBlock, ThinkingBlock, MessageBlock, InlineButtonsBlock, CompactionBlock } from '@/types/RenderBlock';
+import type {
+  MetaItem,
+  RenderBlock,
+  ToolBlock,
+  ThinkingBlock,
+  MessageBlock,
+  InlineButtonsBlock,
+  CompactionBlock,
+  FileOutputBlock,
+  DecisionBlock,
+  WorkshopEventBlock,
+  SessionEventBlock,
+} from '@/types/RenderBlock';
 import type { NormalizedMessage } from '@/types/NormalizedMessage';
 import type {
   SemanticBlock,
@@ -208,17 +220,19 @@ export function buildSemanticBlocks(
 }
 
 export function projectSemanticBlocksToRenderBlocks(blocks: SemanticBlock[]): RenderBlock[] {
-  return blocks.flatMap((block) => {
+  const renderBlocks: RenderBlock[] = [];
+  for (const block of blocks) {
     switch (block.type) {
       case 'compaction':
-        return [{
+        renderBlocks.push({
           type: 'compaction',
           id: block.id,
           timestamp: block.timestamp,
           isStreaming: block.isStreaming,
-        } satisfies CompactionBlock];
+        } satisfies CompactionBlock);
+        break;
       case 'tool-activity':
-        return [{
+        renderBlocks.push({
           type: 'tool',
           id: block.id,
           timestamp: block.timestamp,
@@ -228,25 +242,28 @@ export function projectSemanticBlocksToRenderBlocks(blocks: SemanticBlock[]): Re
           output: block.output,
           status: block.status,
           durationMs: block.durationMs,
-        } satisfies ToolBlock];
+        } satisfies ToolBlock);
+        break;
       case 'inline-buttons':
-        return [{
+        renderBlocks.push({
           type: 'inline-buttons',
           id: block.id,
           timestamp: block.timestamp,
           isStreaming: block.isStreaming,
           rows: block.rows,
-        } satisfies InlineButtonsBlock];
+        } satisfies InlineButtonsBlock);
+        break;
       case 'thinking':
-        return [{
+        renderBlocks.push({
           type: 'thinking',
           id: block.id,
           timestamp: block.timestamp,
           isStreaming: block.isStreaming,
           content: block.content,
-        } satisfies ThinkingBlock];
+        } satisfies ThinkingBlock);
+        break;
       case 'message-content':
-        return [{
+        renderBlocks.push({
           type: 'message',
           id: block.id,
           timestamp: block.timestamp,
@@ -258,41 +275,47 @@ export function projectSemanticBlocksToRenderBlocks(blocks: SemanticBlock[]): Re
           images: block.images,
           audio: block.audio,
           ...(block.meta ? { meta: block.meta } : {}),
-        } satisfies MessageBlock];
+        } satisfies MessageBlock);
+        break;
       case 'file-output':
-        return [{
+        renderBlocks.push({
           type: 'file-output',
           id: block.id,
           timestamp: block.timestamp,
           isStreaming: block.isStreaming,
           files: block.files,
-        }];
+        } satisfies FileOutputBlock);
+        break;
       case 'decision':
-        return [{
+        renderBlocks.push({
           type: 'decision',
           id: block.id,
           timestamp: block.timestamp,
           isStreaming: block.isStreaming,
           options: block.options,
-        }];
+        } satisfies DecisionBlock);
+        break;
       case 'workshop-event':
-        return [{
+        renderBlocks.push({
           type: 'workshop-event',
           id: block.id,
           timestamp: block.timestamp,
           isStreaming: block.isStreaming,
           events: block.events,
-        }];
+        } satisfies WorkshopEventBlock);
+        break;
       case 'session-event':
-        return [{
+        renderBlocks.push({
           type: 'session-event',
           id: block.id,
           timestamp: block.timestamp,
           isStreaming: block.isStreaming,
           event: block.event,
-        }];
+        } satisfies SessionEventBlock);
+        break;
       default:
-        return [];
+        break;
     }
-  });
+  }
+  return renderBlocks;
 }

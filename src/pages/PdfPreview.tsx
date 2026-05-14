@@ -125,7 +125,7 @@ export function PdfPreview({ base64, onOpenExternal }: PdfPreviewProps) {
       ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
       ctx.clearRect(0, 0, viewport.width, viewport.height);
 
-      const task = pdfPage.render({ canvasContext: ctx, viewport });
+      const task = pdfPage.render({ canvas, canvasContext: ctx, viewport });
       renderTaskRef.current = task;
       await task.promise;
     } catch (err: any) {

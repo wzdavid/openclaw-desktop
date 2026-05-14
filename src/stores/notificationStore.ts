@@ -5,7 +5,7 @@ import { create } from 'zustand';
 // No history panel, no read/unread tracking, no bell icon
 // ═══════════════════════════════════════════════════════════
 
-export type NotificationType = 'message' | 'task_complete' | 'info';
+export type NotificationType = 'message' | 'task_complete' | 'info' | 'error';
 
 export interface Toast {
   id: string;

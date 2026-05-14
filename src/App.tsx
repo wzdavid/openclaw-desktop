@@ -27,6 +27,7 @@ const CodeInterpreterPage = lazy(() => import('@/pages/CodeInterpreter').then(m 
 const McpToolsPage = lazy(() => import('@/pages/McpTools').then(m => ({ default: m.McpToolsPage })));
 import { FeatureRoute } from '@/components/FeatureRoute';
 import { useChatStore } from '@/stores/chatStore';
+import { useBootSequenceStore } from '@/stores/bootSequenceStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { gateway } from '@/services/gateway';
 import { notifications } from '@/services/notifications';
@@ -94,6 +95,7 @@ export default function App() {
   const [scopeError, setScopeError] = useState<string>('');
   const [gatewayHttpUrl, setGatewayHttpUrl] = useState('http://127.0.0.1:18789');
   const pairingTriggeredRef = useRef(false);
+  const deferredModelSyncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ── Gateway process boot error state ──
   // Tracks whether the gateway *process* failed to start (distinct from WebSocket connection issues).
@@ -350,10 +352,56 @@ export default function App() {
             setNeedsPairing(false);
             pairingTriggeredRef.current = false;
           }
-          void (async () => {
-            await loadSessions();
-            await loadAvailableModels();
-          })();
+          const boot = useBootSequenceStore.getState();
+          boot.markStageCompleted('connection', 'WebSocket handshake complete');
+          boot.markStageRunning('config', 'Loading sessions');
+          void loadSessions().then(() => {
+            boot.markStageCompleted('config', 'Sessions ready');
+            boot.markStageRunning('conversation', 'Warming recent conversation');
+            const sessionKey = useChatStore.getState().activeSessionKey || 'agent:main:main';
+            void gateway.getHistory(sessionKey, 20, 8_000).then((result) => {
+              const stage = useBootSequenceStore.getState().stages.conversation;
+              if (stage.status !== 'pending' && stage.status !== 'running') return;
+              const messages = Array.isArray(result?.messages) ? result.messages : [];
+              useBootSequenceStore.getState().markStageCompleted(
+                'conversation',
+                messages.length > 0
+                  ? `Recent conversation warmed (${messages.length} messages)`
+                  : 'Recent conversation warmed',
+              );
+            }).catch((err) => {
+              const stage = useBootSequenceStore.getState().stages.conversation;
+              if (stage.status !== 'pending' && stage.status !== 'running') return;
+              const errText = String(err);
+              const isHistoryUnavailableDuringStartup =
+                /chat\.history/i.test(errText) &&
+                /(unavailable|not available|not ready|warming|startup)/i.test(errText);
+              if (isHistoryUnavailableDuringStartup || errText.includes('Request timeout')) {
+                useBootSequenceStore.getState().markStageCompleted(
+                  'conversation',
+                  'Recent conversation is syncing in the background.',
+                );
+                return;
+              }
+              useBootSequenceStore.getState().markStageCompleted(
+                'conversation',
+                'Recent conversation will load after startup.',
+              );
+            });
+
+            boot.markStageRunning('background', 'Models will sync in the background');
+            if (deferredModelSyncTimerRef.current) {
+              clearTimeout(deferredModelSyncTimerRef.current);
+            }
+            deferredModelSyncTimerRef.current = setTimeout(() => {
+              deferredModelSyncTimerRef.current = null;
+              void loadAvailableModels().finally(() => {
+                useBootSequenceStore.getState().markStageCompleted('background', 'Models synced');
+              });
+            }, 1_500);
+          }).catch(() => {
+            boot.markStageError('config', 'Session load failed');
+          });
         }
       },
       onScopeError: (error) => {
@@ -444,6 +492,10 @@ export default function App() {
     // Cleanup — prevent orphan WebSocket connections on remount
     return () => {
       gatewayStatusUnsub?.();
+      if (deferredModelSyncTimerRef.current) {
+        clearTimeout(deferredModelSyncTimerRef.current);
+        deferredModelSyncTimerRef.current = null;
+      }
       window.removeEventListener('aegis:model-changed', handleModelChanged);
       window.removeEventListener('aegis:config-saved', handleConfigSaved);
       window.removeEventListener('aegis:session-reset', handleSessionReset);
@@ -455,6 +507,8 @@ export default function App() {
     const DEFAULT_URL = 'ws://127.0.0.1:18789';
     const wsStatus = gateway.getStatus();
     if (wsStatus.connected || wsStatus.connecting) return;
+    useBootSequenceStore.getState().reset();
+    useBootSequenceStore.getState().markStageRunning('connection', 'Connecting WebSocket');
 
     // Priority: Settings Store (user override) → Electron config → fallback
     // Settings fields are empty by default — only override when user explicitly fills them

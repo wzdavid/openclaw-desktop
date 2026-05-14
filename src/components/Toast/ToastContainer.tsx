@@ -6,7 +6,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, CheckCircle2, Info, X } from 'lucide-react';
+import { MessageSquare, CheckCircle2, Info, AlertTriangle, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNotificationStore, type Toast, type NotificationType } from '@/stores/notificationStore';
 import { themeHex, themeAlpha } from '@/utils/theme-colors';
@@ -17,6 +17,7 @@ const TYPE_CONFIG: Record<NotificationType, { Icon: React.ElementType; colorKey:
   message:       { Icon: MessageSquare, colorKey: 'primary' },
   task_complete: { Icon: CheckCircle2,  colorKey: 'success' },
   info:          { Icon: Info,          colorKey: 'accent'  },
+  error:         { Icon: AlertTriangle, colorKey: 'accent'  },
 };
 
 // ── Detect current layout direction ───────────────────────
