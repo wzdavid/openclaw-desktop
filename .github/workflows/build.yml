@@ -185,7 +185,7 @@ jobs:
   build-win:
     name: Build Windows
     needs: build-mac-arm64
-    runs-on: windows-latest
+    runs-on: windows-2022
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
@@ -207,10 +207,24 @@ jobs:
           python --version
           python -c "import sys; print(sys.executable)"
 
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
         env:
           npm_config_python: python
+          npm_config_msvs_version: 2022
+          GYP_MSVS_VERSION: 2022
+
+      - name: Rebuild native dependencies for Electron
+        run: npx electron-builder install-app-deps
+        env:
+          npm_config_python: python
+          npm_config_msvs_version: 2022
+          GYP_MSVS_VERSION: 2022
 
       - name: Bundle Node.js + openclaw
         run: powershell -ExecutionPolicy Bypass -File scripts/bundle-node.ps1
@@ -219,6 +233,8 @@ jobs:
         run: npm run build:win:lite
         env:
           npm_config_python: python
+          npm_config_msvs_version: 2022
+          GYP_MSVS_VERSION: 2022
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
