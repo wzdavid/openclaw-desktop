@@ -1,13 +1,13 @@
 {
   "name": "openclaw-desktop",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "OpenClaw Desktop — OpenClaw 桌面客户端，连接 OpenClaw Gateway",
   "main": "dist-electron/main.js",
   "author": "Wei ZHANG",
   "license": "MIT",
   "openclawDesktopBundleDefaults": {
     "nodeVersion": "22.16.0",
-    "openclawVersion": "2026.4.21"
+    "openclawVersion": "latest"
   },
   "scripts": {
     "sync:edition": "node scripts/sync-edition-package.js",
