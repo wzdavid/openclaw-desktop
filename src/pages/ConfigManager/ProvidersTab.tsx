@@ -250,6 +250,21 @@ function stripProviderNamespace(providerId: string, modelRef: string): string {
   return trimmed.slice(slashIndex + 1);
 }
 
+function hasProviderConfigApiKey(value: unknown): boolean {
+  if (typeof value === 'string') return value.trim().length > 0;
+  return value != null;
+}
+
+function deriveProviderApiKeyEnvKey(providerId: string, tmpl?: ProviderTemplate): string {
+  if (tmpl?.id === 'custom' && tmpl.envKey) return tmpl.envKey;
+  const normalized = String(providerId ?? '')
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+  return normalized ? `${normalized}_API_KEY` : 'OPENCLAW_CUSTOM_API_KEY';
+}
+
 type GatewayModelOption = {
   id: string;
   provider?: string;
@@ -477,6 +492,7 @@ function modelsForProvider(
 function buildUnifiedProviders(config: GatewayRuntimeConfig): UnifiedProvider[] {
   const result: UnifiedProvider[] = [];
   const allModels = config.agents?.defaults?.models ?? {};
+  const modelsProviders = config.models?.providers ?? {};
   const findExistingIndex = (providerId: string) =>
     result.findIndex((p) => providerNamespaceMatches(p.provider, providerId));
 
@@ -488,10 +504,13 @@ function buildUnifiedProviders(config: GatewayRuntimeConfig): UnifiedProvider[] 
     const template = getTemplateById(providerRaw);
     const provider = template?.id ?? providerRaw;
     const models   = getModelsForProvider(providerRaw, allModels);
+    const providerConfigEntry = Object.entries(modelsProviders).find(([modelsProviderId]) =>
+      providerNamespaceMatches(modelsProviderId, provider)
+    )?.[1];
     const envKeyFound = !!(
       template?.envKey && envVarsForAuth[template.envKey] &&
       String(envVarsForAuth[template.envKey]).trim()
-    );
+    ) || hasProviderConfigApiKey(providerConfigEntry?.apiKey);
 
     result.push({
       key:         profileKey,
@@ -508,7 +527,6 @@ function buildUnifiedProviders(config: GatewayRuntimeConfig): UnifiedProvider[] 
   }
 
   // ── 2. models.providers ───────────────────────────────────
-  const modelsProviders = config.models?.providers ?? {};
   for (const [providerId, modelsProvider] of Object.entries(modelsProviders)) {
     // Find auth profiles for this provider
     const existingAuthProfiles = result.filter(
@@ -587,6 +605,8 @@ function applyProviderAddition(
   const providerIdFromKey = getProviderFromProfileKey(profileKey);
   const providerId = profile.provider || providerIdFromKey;
   const tmpl = getTemplateById(providerId);
+  const storeSecretInProviderConfig = !tmpl || tmpl.id === 'custom';
+  const providerApiKeyEnvKey = deriveProviderApiKeyEnvKey(providerId, tmpl);
 
   const normalizedModelSet = new Set<string>(
     (models || [])
@@ -705,7 +725,54 @@ function applyProviderAddition(
   };
 
   const key = (profile as any).token ?? (profile as any).apiKey ?? (profile as any).key;
-  if (tmpl?.envKey && key) {
+  if (storeSecretInProviderConfig) {
+    const nextProviderModels = buildNextProviderModels();
+    const providerApiKeyRef = key ? `\${${providerApiKeyEnvKey}}` : currentProviderCfg.apiKey;
+    const shouldKeepProfileMetadata = tmpl?.id === 'custom';
+
+    next = {
+      ...next,
+      ...(key
+        ? {
+          env: {
+            ...next.env,
+            vars: {
+              ...(next.env?.vars ?? {}),
+              [providerApiKeyEnvKey]: key,
+            },
+          },
+        }
+        : {}),
+      ...(shouldKeepProfileMetadata
+        ? {
+          auth: {
+            ...next.auth,
+            profiles: {
+              ...(next.auth?.profiles ?? {}),
+              [profileKey]: {
+                ...profile,
+                token: undefined,
+                apiKey: undefined,
+              },
+            },
+          },
+        }
+        : {}),
+      models: {
+        ...next.models,
+        providers: {
+          ...(next.models?.providers ?? {}),
+          [providerId]: {
+            ...currentProviderCfg,
+            ...(providerApiKeyRef ? { apiKey: providerApiKeyRef } : {}),
+            baseUrl: providerConfig?.baseUrl ?? tmpl?.baseUrl ?? currentProviderCfg.baseUrl,
+            api: providerConfig?.api ?? tmpl?.api ?? currentProviderCfg.api,
+            models: nextProviderModels,
+          },
+        },
+      },
+    };
+  } else if (tmpl?.envKey && key) {
     window.aegis?.agentAuth?.syncMain?.([
       { provider: providerId, profileKey, apiKey: key, mode: profile.mode ?? (profile as any).type ?? 'api_key' },
     ]);

@@ -317,6 +317,11 @@ export interface ModelProviderModelEntry {
 export interface ModelProviderConfig {
   baseUrl?: string;
   api?: string;
+  apiKey?: string | Record<string, any>;
+  request?: {
+    allowPrivateNetwork?: boolean;
+    [key: string]: any;
+  };
   models?: ModelProviderModelEntry[];
 }
 

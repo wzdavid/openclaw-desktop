@@ -235,8 +235,9 @@ export function ConfigManagerPage() {
 
         if (detected.exists) {
           const { data } = await window.aegis.config.read(detected.path);
-          setConfig(data);
-          setOriginalConfig(structuredClone(data));
+          const normalized = normalizeConfig(data);
+          setConfig(normalized);
+          setOriginalConfig(structuredClone(normalized));
         }
       } catch (err: any) {
         setError(err.message || 'Unknown error');
@@ -316,9 +317,10 @@ export function ConfigManagerPage() {
         console.warn('[Config] Failed to rehydrate main runtime state:', rehydrateErr);
       }
 
-      // 4. Sync both states to the merged version (UI keeps apiKey/mode)
-      setConfig(structuredClone(mergedWithPreferredProviders));
-      setOriginalConfig(structuredClone(mergedWithPreferredProviders));
+      // 4. Sync UI state from the actual saved config so in-memory state matches disk.
+      const normalizedSavedConfig = normalizeConfig(toWrite);
+      setConfig(structuredClone(normalizedSavedConfig));
+      setOriginalConfig(structuredClone(normalizedSavedConfig));
 
       // Restart gateway after successful save
       try {
@@ -401,7 +403,7 @@ export function ConfigManagerPage() {
       const text = await file.text();
       try {
         const data = JSON.parse(text);
-        setConfig(data);
+        setConfig(normalizeConfig(data));
         // Don't update originalConfig — so hasChanges becomes true
       } catch {
         setError(t('config.importError'));
@@ -477,6 +479,178 @@ export function ConfigManagerPage() {
     return out;
   };
 
+  const PROVIDER_API_KEY_REF_RE = /^\$\{[^}]+\}$/;
+
+  const isProviderApiKeyReference = (value: unknown): boolean => {
+    if (typeof value === 'string') {
+      return PROVIDER_API_KEY_REF_RE.test(value.trim());
+    }
+    if (!value || typeof value !== 'object') return false;
+    const record = value as Record<string, unknown>;
+    return typeof record.source === 'string' || typeof record.id === 'string';
+  };
+
+  const deriveProviderApiKeyEnvKey = (providerId: string, template?: ReturnType<typeof getTemplateById>): string => {
+    if (template?.id === 'custom' && template.envKey) return template.envKey;
+    const normalized = String(providerId ?? '')
+      .trim()
+      .toUpperCase()
+      .replace(/[^A-Z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+    return normalized ? `${normalized}_API_KEY` : 'OPENCLAW_CUSTOM_API_KEY';
+  };
+
+  const resolveModelSupportsImage = (value: any): boolean | undefined => {
+    if (!value || typeof value !== 'object') return undefined;
+    if (typeof value.supportsImage === 'boolean') return value.supportsImage;
+    if (typeof value.supports_image === 'boolean') return value.supports_image;
+    if (Array.isArray(value.input)) {
+      const modalities = value.input.map((m: any) => String(m).toLowerCase());
+      if (modalities.includes('image')) return true;
+      if (modalities.includes('text')) return false;
+    }
+    return undefined;
+  };
+
+  const hydrateAgentModelCapabilitiesForUi = (data: GatewayRuntimeConfig): GatewayRuntimeConfig => {
+    const models = data.agents?.defaults?.models;
+    if (!models || Object.keys(models).length === 0) return data;
+
+    let mutated = false;
+    const providerConfigs = data.models?.providers ?? {};
+    const nextModels: Record<string, any> = {};
+    for (const [modelRef, modelEntry] of Object.entries(models)) {
+      const existingEntry =
+        modelEntry && typeof modelEntry === 'object'
+          ? { ...(modelEntry as Record<string, any>) }
+          : {};
+      const explicitSupport = resolveModelSupportsImage(existingEntry);
+      if (typeof explicitSupport === 'boolean') {
+        nextModels[modelRef] = existingEntry;
+        continue;
+      }
+
+      const canonicalRef = canonicalizeModelRef(modelRef) ?? modelRef;
+      const slashIndex = canonicalRef.indexOf('/');
+      const providerId = slashIndex > 0 ? canonicalProviderId(canonicalRef.slice(0, slashIndex)) : undefined;
+      const rawModelId = slashIndex > 0 ? canonicalRef.slice(slashIndex + 1) : canonicalRef;
+      const providerModels = providerId ? providerConfigs[providerId]?.models : undefined;
+      const providerModel = Array.isArray(providerModels)
+        ? providerModels.find((item: any) => stripProviderPrefix(providerId!, String(item?.id ?? '')) === rawModelId)
+        : undefined;
+      const generatedSupport =
+        typeof providerId === 'string'
+          ? GENERATED_PROVIDER_CATALOG[providerId]?.find(
+            (item) => stripProviderPrefix(providerId, item.id) === rawModelId
+          )?.supportsImage
+          : undefined;
+      const inferredSupport =
+        resolveModelSupportsImage(providerModel)
+        ?? generatedSupport;
+
+      if (typeof inferredSupport === 'boolean') {
+        mutated = true;
+        nextModels[modelRef] = {
+          ...existingEntry,
+          supportsImage: inferredSupport,
+          input: inferredSupport ? ['text', 'image'] : ['text'],
+        };
+        continue;
+      }
+
+      nextModels[modelRef] = existingEntry;
+    }
+
+    if (!mutated) return data;
+    return {
+      ...data,
+      agents: {
+        ...data.agents,
+        defaults: {
+          ...data.agents?.defaults,
+          models: nextModels,
+        },
+      },
+    };
+  };
+
+  const isPrivateHostname = (hostname: string): boolean => {
+    const normalized = String(hostname ?? '').trim().toLowerCase();
+    if (!normalized) return false;
+    if (normalized === 'localhost' || normalized.endsWith('.local')) return true;
+    const ipv4Match = normalized.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+    if (!ipv4Match) return normalized === '::1' || normalized.startsWith('fc') || normalized.startsWith('fd');
+    const [a, b, c, d] = ipv4Match.slice(1).map((part) => Number(part));
+    if ([a, b, c, d].some((part) => Number.isNaN(part) || part < 0 || part > 255)) return false;
+    if (a === 10 || a === 127) return true;
+    if (a === 169 && b === 254) return true;
+    if (a === 172 && b >= 16 && b <= 31) return true;
+    if (a === 192 && b === 168) return true;
+    if (a === 100 && b >= 64 && b <= 127) return true;
+    if (a === 198 && (b === 18 || b === 19)) return true;
+    return false;
+  };
+
+  const shouldAutoAllowPrivateProviderNetwork = (
+    providerId: string,
+    providerConfig: Record<string, any> | undefined,
+  ): boolean => {
+    const baseUrl = String(providerConfig?.baseUrl ?? '').trim();
+    if (!baseUrl) return false;
+    const template = getTemplateById(providerId);
+    const isCustomLike = !template || template.id === 'custom' || template.id === 'vllm' || template.id === 'ollama';
+    if (!isCustomLike) return false;
+    try {
+      return isPrivateHostname(new URL(baseUrl).hostname);
+    } catch {
+      return false;
+    }
+  };
+
+  const ensurePrivateProviderNetworkAccess = (data: GatewayRuntimeConfig): GatewayRuntimeConfig => {
+    const providers = data.models?.providers;
+    if (!providers || Object.keys(providers).length === 0) return data;
+
+    let mutated = false;
+    const nextProviders: Record<string, any> = {};
+    for (const [rawProviderId, providerValue] of Object.entries(providers)) {
+      const providerId = canonicalProviderId(rawProviderId);
+      const providerConfig =
+        providerValue && typeof providerValue === 'object'
+          ? { ...(providerValue as Record<string, any>) }
+          : providerValue;
+      if (
+        providerConfig &&
+        typeof providerConfig === 'object' &&
+        shouldAutoAllowPrivateProviderNetwork(providerId, providerConfig) &&
+        providerConfig.request?.allowPrivateNetwork !== false
+      ) {
+        const nextRequest = {
+          ...(providerConfig.request ?? {}),
+          allowPrivateNetwork: true,
+        };
+        if (JSON.stringify(nextRequest) !== JSON.stringify(providerConfig.request ?? {})) {
+          mutated = true;
+          nextProviders[providerId] = {
+            ...providerConfig,
+            request: nextRequest,
+          };
+          continue;
+        }
+      }
+      nextProviders[providerId] = providerConfig;
+    }
+
+    if (!mutated) return data;
+    return {
+      ...data,
+      models: {
+        ...data.models,
+        providers: nextProviders,
+      },
+    };
+  };
+
   const stripProviderSecrets = (data: GatewayRuntimeConfig): GatewayRuntimeConfig => {
     const providers = data.models?.providers;
     if (!providers) return data;
@@ -484,7 +658,12 @@ export function ConfigManagerPage() {
     let mutated = false;
     const nextProviders: Record<string, any> = {};
     for (const [providerId, providerConfig] of Object.entries(providers)) {
-      if (providerConfig && typeof providerConfig === 'object' && 'apiKey' in providerConfig) {
+      if (
+        providerConfig &&
+        typeof providerConfig === 'object' &&
+        'apiKey' in providerConfig &&
+        !isProviderApiKeyReference((providerConfig as Record<string, unknown>).apiKey)
+      ) {
         const { apiKey: _apiKey, ...rest } = providerConfig as Record<string, any>;
         nextProviders[providerId] = rest;
         mutated = true;
@@ -618,27 +797,87 @@ export function ConfigManagerPage() {
       ...(mutated ? next : data),
       channels: normalizeChannelStreaming((mutated ? next : data).channels),
     };
-    return stripProviderSecrets(withNormalizedChannelStreaming);
+    const stripped = stripProviderSecrets(withNormalizedChannelStreaming);
+    return hydrateAgentModelCapabilitiesForUi(stripped);
+  };
+
+  const migrateCustomProviderSecretsToModels = (data: GatewayRuntimeConfig): GatewayRuntimeConfig => {
+    const profiles = data.auth?.profiles;
+    if (!profiles || Object.keys(profiles).length === 0) return data;
+
+    let mutated = false;
+    const nextProfiles: Record<string, any> = {};
+    const nextEnvVars = { ...(data.env?.vars ?? {}) };
+    const nextProviders = { ...(data.models?.providers ?? {}) };
+
+    for (const [profileKey, profileValue] of Object.entries(profiles)) {
+      const profile = profileValue && typeof profileValue === 'object'
+        ? { ...(profileValue as Record<string, any>) }
+        : {};
+      const providerId = canonicalProviderId(profile.provider ?? profileKey.split(':')[0]);
+      const template = getTemplateById(providerId);
+      const secret = profile.token ?? profile.apiKey ?? profile.key;
+      const shouldUseProviderApiKey = Boolean(secret) && (!template || template.id === 'custom');
+
+      if (!shouldUseProviderApiKey) {
+        nextProfiles[profileKey] = profile;
+        continue;
+      }
+
+      const envKey = deriveProviderApiKeyEnvKey(providerId, template);
+      nextEnvVars[envKey] = String(secret);
+      nextProviders[providerId] = {
+        ...(nextProviders[providerId] ?? {}),
+        apiKey: `\${${envKey}}`,
+      };
+      nextProfiles[profileKey] = {
+        ...profile,
+        provider: providerId,
+        token: undefined,
+        apiKey: undefined,
+        key: undefined,
+      };
+      mutated = true;
+    }
+
+    if (!mutated) return data;
+    return {
+      ...data,
+      env: {
+        ...data.env,
+        vars: nextEnvVars,
+      },
+      auth: {
+        ...data.auth,
+        profiles: nextProfiles,
+      },
+      models: {
+        ...data.models,
+        providers: nextProviders,
+      },
+    };
   };
 
   const normalizeConfigForDisk = (data: GatewayRuntimeConfig): GatewayRuntimeConfig => {
-    const auth = data.auth;
-    const channels = normalizeChannelStreaming(data.channels);
+    const migrated = migrateCustomProviderSecretsToModels(data);
+    const withPrivateProviderAccess = ensurePrivateProviderNetworkAccess(migrated);
+    const auth = withPrivateProviderAccess.auth;
+    const channels = normalizeChannelStreaming(withPrivateProviderAccess.channels);
     const normalized = {
-      ...data,
+      ...withPrivateProviderAccess,
       channels,
       agents: normalizeAgentsForRuntime({
-        agents: data.agents,
-        providers: data.models?.providers,
+        agents: withPrivateProviderAccess.agents,
+        providers: withPrivateProviderAccess.models?.providers,
         generatedProviderCatalog: GENERATED_PROVIDER_CATALOG,
         canonicalizeModelRef,
       }),
-      models: data.models
+      models: withPrivateProviderAccess.models
         ? {
-          ...data.models,
+          ...withPrivateProviderAccess.models,
           providers: normalizeModelsProvidersForRuntime({
-            providers: data.models.providers,
-            agents: data.agents,
+            providers: withPrivateProviderAccess.models.providers,
+            agents: withPrivateProviderAccess.agents,
             generatedProviderCatalog: GENERATED_PROVIDER_CATALOG,
             canonicalProviderId,
             stripProviderPrefix,
@@ -652,7 +891,7 @@ export function ConfigManagerPage() {
         profiles: authProfilesForRuntime(auth.profiles),
       },
     };
-    return stripProviderSecrets(normalized);
+    return normalized;
   };
 
   const requestConnectionFailureConfirm = (failures: string[]) => {
@@ -1105,7 +1344,7 @@ export function ConfigManagerPage() {
                 <button
                   key={b.key}
                   onClick={() => {
-                    setConfig(structuredClone(b.data));
+                    setConfig(normalizeConfig(structuredClone(b.data)));
                     setShowBackups(false);
                   }}
                   className={clsx(

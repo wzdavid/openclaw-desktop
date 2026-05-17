@@ -8,6 +8,18 @@ import { app } from 'electron';
 
 const execAsync = promisify(exec);
 
+function parseLenientConfigJson(raw: string): Record<string, unknown> {
+  try {
+    return JSON.parse(raw) as Record<string, unknown>;
+  } catch {
+    const cleaned = raw
+      .replace(/\/\/[^\n]*/g, '')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/,(\s*[}\]])/g, '$1');
+    return JSON.parse(cleaned) as Record<string, unknown>;
+  }
+}
+
 export interface OpenclawConfigValidation {
   valid: boolean;
   path: string;
@@ -54,7 +66,7 @@ export class NodeManager {
     }
     try {
       const raw = fs.readFileSync(configPath, 'utf-8');
-      JSON.parse(raw);
+      parseLenientConfigJson(raw);
       return { valid: true, path: configPath, exists: true };
     } catch (err: any) {
       return { valid: false, path: configPath, exists: true, error: err.message };
@@ -311,7 +323,7 @@ export class NodeManager {
         const raw = fs.readFileSync(file, 'utf-8').trim();
         let obj: Record<string, unknown>;
         try {
-          obj = JSON.parse(raw) as Record<string, unknown>;
+          obj = parseLenientConfigJson(raw);
         } catch {
           // Treat as raw token string (single-line, no whitespace)
           if (raw && !raw.includes(' ') && !raw.includes('\n')) return raw;
@@ -705,31 +717,40 @@ export class NodeManager {
     }
   };
 
-  stop(): void {
+  stop(timeoutMs: number = 7000): Promise<void> {
     // Never kill a gateway we didn't start.
     if (this.isAdopted) {
       console.log('[Gateway] External (adopted) gateway — skipping stop.');
       this.isAdopted = false;
       this.isReady = false;
-      return;
+      return Promise.resolve();
     }
-    if (!this.process) return;
+    if (!this.process) return Promise.resolve();
     console.log('Stopping OpenClaw gateway...');
     // Clear the reference first so handleExit won't schedule an auto-restart.
     // Keep a local ref so the SIGKILL fallback timer can still reach the process.
     const proc = this.process;
     this.process = null;
-    proc.kill('SIGTERM');
-    const killTimer = setTimeout(() => {
-      try {
-        if (!proc.killed) {
-          console.log('Force killing OpenClaw gateway...');
-          proc.kill('SIGKILL');
-        }
-      } catch { /* process already exited */ }
-    }, 5000);
-    // Cancel SIGKILL timer early if the process exits on its own.
-    proc.once('exit', () => clearTimeout(killTimer));
+    return new Promise((resolve) => {
+      const finish = () => {
+        clearTimeout(killTimer);
+        clearTimeout(resolveTimer);
+        resolve();
+      };
+      proc.once('exit', finish);
+      proc.kill('SIGTERM');
+      const killTimer = setTimeout(() => {
+        try {
+          if (!proc.killed) {
+            console.log('Force killing OpenClaw gateway...');
+            proc.kill('SIGKILL');
+          }
+        } catch { /* process already exited */ }
+      }, 5000);
+      const resolveTimer = setTimeout(() => {
+        finish();
+      }, timeoutMs);
+    });
   }
 
   /**

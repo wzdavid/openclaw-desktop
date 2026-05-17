@@ -1577,8 +1577,7 @@ function setupIPC(): void {
   ipcMain.handle('config:restart', async () => {
     if (nodeManager) {
       try {
-        nodeManager.stop();
-        await new Promise((r) => setTimeout(r, 1000));
+        await nodeManager.stop();
         await startGateway();
         // Notify renderer so GatewayErrorScreen dismisses if it was showing
         emitGatewayStatusChanged({ running: true, ready: true, error: null });
@@ -1601,8 +1600,7 @@ function setupIPC(): void {
     // Notify renderer we're retrying so it can show a spinner
     emitGatewayStatusChanged({ running: false, ready: false, retrying: true, error: null });
     try {
-      if (nodeManager) nodeManager.stop();
-      await new Promise<void>((r) => setTimeout(r, 500));
+      if (nodeManager) await nodeManager.stop();
       await startGateway(false, false, true);
       emitGatewayStatusChanged({ running: true, ready: true, error: null });
       return { success: true };

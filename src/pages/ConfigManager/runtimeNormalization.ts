@@ -37,6 +37,14 @@ function sanitizeAgentModelEntry(value: any): Record<string, any> {
   return next;
 }
 
+function sanitizeProviderModelEntry(value: any, strippedId: string, supportsImage: boolean): Record<string, any> {
+  const next: Record<string, any> = {};
+  if (typeof strippedId === 'string' && strippedId.trim()) next.id = strippedId;
+  if (typeof value?.name === 'string' && value.name.trim()) next.name = value.name;
+  next.input = supportsImage ? ['text', 'image'] : ['text'];
+  return next;
+}
+
 export function normalizeModelsProvidersForRuntime(params: {
   providers: Record<string, any> | undefined;
   agents?: GatewayRuntimeConfig['agents'] | undefined;
@@ -86,12 +94,7 @@ export function normalizeModelsProvidersForRuntime(params: {
               resolveModelSupportsImage(model)
               ?? generatedSupport
               ?? false;
-            return {
-              ...model,
-              id: strippedId,
-              supportsImage,
-              input: supportsImage ? ['text', 'image'] : ['text'],
-            };
+            return sanitizeProviderModelEntry(model, strippedId, supportsImage);
           });
         }
       } else {
@@ -100,12 +103,7 @@ export function normalizeModelsProvidersForRuntime(params: {
           const supportsImage =
             resolveModelSupportsImage(model)
             ?? false;
-          return {
-            ...model,
-            id: strippedId,
-            supportsImage,
-            input: supportsImage ? ['text', 'image'] : ['text'],
-          };
+          return sanitizeProviderModelEntry(model, strippedId, supportsImage);
         });
       }
     } else if (template) {

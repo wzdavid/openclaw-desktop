@@ -92,7 +92,6 @@ test('normalizeModelsProvidersForRuntime keeps explicit models for unknown templ
         {
           id: 'custom-vision-preview',
           name: 'Custom Vision Preview',
-          supportsImage: false,
           input: ['text'],
         },
       ],
@@ -136,17 +135,17 @@ test('normalizeModelsProvidersForRuntime preserves explicit models for custom-li
   assert.deepEqual(normalized, {
     custom: {
       models: [
-        { id: 'openai/gpt-4o', name: 'GPT-4o', supportsImage: false, input: ['text'] },
+        { id: 'openai/gpt-4o', name: 'GPT-4o', input: ['text'] },
       ],
     },
     vllm: {
       models: [
-        { id: 'qwen/qwen3.6-plus', name: 'Qwen 3.6 Plus', supportsImage: false, input: ['text'] },
+        { id: 'qwen/qwen3.6-plus', name: 'Qwen 3.6 Plus', input: ['text'] },
       ],
     },
     ollama: {
       models: [
-        { id: 'llama3.2-vision', name: 'Llama 3.2 Vision', supportsImage: false, input: ['text'] },
+        { id: 'llama3.2-vision', name: 'Llama 3.2 Vision', input: ['text'] },
       ],
     },
   });
@@ -155,6 +154,7 @@ test('normalizeModelsProvidersForRuntime preserves explicit models for custom-li
 test('normalizeModelsProvidersForRuntime preserves explicit image capability for custom-like providers', () => {
   const providers = {
     custom: {
+      apiKey: '${OPENCLAW_CUSTOM_API_KEY}',
       models: [
         { id: 'local-vision', name: 'Local Vision', supportsImage: true },
       ],
@@ -173,8 +173,9 @@ test('normalizeModelsProvidersForRuntime preserves explicit image capability for
 
   assert.deepEqual(normalized, {
     custom: {
+      apiKey: '${OPENCLAW_CUSTOM_API_KEY}',
       models: [
-        { id: 'local-vision', name: 'Local Vision', supportsImage: true, input: ['text', 'image'] },
+        { id: 'local-vision', name: 'Local Vision', input: ['text', 'image'] },
       ],
     },
   });

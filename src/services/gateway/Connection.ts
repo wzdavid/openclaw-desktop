@@ -9,6 +9,12 @@ import { startPolling, stopPolling } from '@/stores/gatewayDataStore';
 import { APP_VERSION } from '@/hooks/useAppVersion';
 import i18n from '@/i18n';
 
+// OpenClaw 2026.5.x introduced a newer WS protocol while older installs still
+// negotiate protocol 3. Advertise a compatible range so Desktop can connect to
+// both without pinning the bundled gateway to one exact revision.
+const GATEWAY_PROTOCOL_MIN = 3;
+const GATEWAY_PROTOCOL_MAX = 4;
+
 // ── Platform Detection (cross-platform) ──
 export function detectPlatform(): string {
   const ua = (navigator.userAgent || '').toLowerCase();
@@ -424,8 +430,8 @@ export class GatewayConnection {
       id,
       method: 'connect',
       params: {
-        minProtocol: 3,
-        maxProtocol: 3,
+        minProtocol: GATEWAY_PROTOCOL_MIN,
+        maxProtocol: GATEWAY_PROTOCOL_MAX,
         client: {
           id: clientId,
           version: APP_VERSION,

@@ -5,6 +5,14 @@ export type GeneratedMediaCatalogModel = {
 
 export const GENERATED_IMAGE_GENERATION_MODELS: GeneratedMediaCatalogModel[] = [
   {
+    "id": "black-forest-labs/FLUX-1-dev",
+    "provider": "deepinfra"
+  },
+  {
+    "id": "black-forest-labs/FLUX-1-schnell",
+    "provider": "deepinfra"
+  },
+  {
     "id": "comfy/workflow",
     "provider": "comfy"
   },
@@ -25,6 +33,10 @@ export const GENERATED_IMAGE_GENERATION_MODELS: GeneratedMediaCatalogModel[] = [
     "provider": "google"
   },
   {
+    "id": "litellm/gpt-image-2",
+    "provider": "litellm"
+  },
+  {
     "id": "minimax-portal/image-01",
     "provider": "minimax-portal"
   },
@@ -33,12 +45,48 @@ export const GENERATED_IMAGE_GENERATION_MODELS: GeneratedMediaCatalogModel[] = [
     "provider": "minimax"
   },
   {
+    "id": "openai/gpt-5.4-image-2",
+    "provider": "openrouter"
+  },
+  {
+    "id": "openai/gpt-image-1",
+    "provider": "openai"
+  },
+  {
+    "id": "openai/gpt-image-1-mini",
+    "provider": "openai"
+  },
+  {
+    "id": "openai/gpt-image-1.5",
+    "provider": "openai"
+  },
+  {
     "id": "openai/gpt-image-2",
     "provider": "openai"
   },
   {
+    "id": "qwen/Qwen-Image-Max",
+    "provider": "deepinfra"
+  },
+  {
+    "id": "run-diffusion/Juggernaut-Lightning-Flux",
+    "provider": "deepinfra"
+  },
+  {
+    "id": "stabilityai/sdxl-turbo",
+    "provider": "deepinfra"
+  },
+  {
     "id": "vydra/grok-imagine",
     "provider": "vydra"
+  },
+  {
+    "id": "xai/grok-imagine-image",
+    "provider": "xai"
+  },
+  {
+    "id": "xai/grok-imagine-image-pro",
+    "provider": "xai"
   }
 ] as const;
 
@@ -68,11 +116,19 @@ export const GENERATED_VIDEO_GENERATION_MODELS: GeneratedMediaCatalogModel[] = [
     "provider": "fal"
   },
   {
+    "id": "bytedance/seedance-2.0/fast/reference-to-video",
+    "provider": "fal"
+  },
+  {
     "id": "bytedance/seedance-2.0/fast/text-to-video",
     "provider": "fal"
   },
   {
     "id": "bytedance/seedance-2.0/image-to-video",
+    "provider": "fal"
+  },
+  {
+    "id": "bytedance/seedance-2.0/reference-to-video",
     "provider": "fal"
   },
   {
@@ -124,12 +180,20 @@ export const GENERATED_VIDEO_GENERATION_MODELS: GeneratedMediaCatalogModel[] = [
     "provider": "google"
   },
   {
+    "id": "google/veo-3.0-fast",
+    "provider": "deepinfra"
+  },
+  {
     "id": "google/veo-3.0-fast-generate-001",
     "provider": "google"
   },
   {
     "id": "google/veo-3.0-generate-001",
     "provider": "google"
+  },
+  {
+    "id": "google/veo-3.1-fast",
+    "provider": "openrouter"
   },
   {
     "id": "google/veo-3.1-fast-generate-preview",
@@ -146,6 +210,30 @@ export const GENERATED_VIDEO_GENERATION_MODELS: GeneratedMediaCatalogModel[] = [
   {
     "id": "kwai/Kling-2.1-Master",
     "provider": "together"
+  },
+  {
+    "id": "minimax-portal/I2V-01",
+    "provider": "minimax-portal"
+  },
+  {
+    "id": "minimax-portal/I2V-01-Director",
+    "provider": "minimax-portal"
+  },
+  {
+    "id": "minimax-portal/I2V-01-live",
+    "provider": "minimax-portal"
+  },
+  {
+    "id": "minimax-portal/MiniMax-Hailuo-02",
+    "provider": "minimax-portal"
+  },
+  {
+    "id": "minimax-portal/MiniMax-Hailuo-2.3",
+    "provider": "minimax-portal"
+  },
+  {
+    "id": "minimax-portal/MiniMax-Hailuo-2.3-Fast",
+    "provider": "minimax-portal"
   },
   {
     "id": "minimax/Hailuo-02",
@@ -182,6 +270,14 @@ export const GENERATED_VIDEO_GENERATION_MODELS: GeneratedMediaCatalogModel[] = [
   {
     "id": "openai/sora-2-pro",
     "provider": "openai"
+  },
+  {
+    "id": "pixverse/Pixverse-T2V",
+    "provider": "deepinfra"
+  },
+  {
+    "id": "pixverse/Pixverse-T2V-HD",
+    "provider": "deepinfra"
   },
   {
     "id": "qwen/wan2.6-i2v",
@@ -238,6 +334,10 @@ export const GENERATED_VIDEO_GENERATION_MODELS: GeneratedMediaCatalogModel[] = [
   {
     "id": "vydra/veo3",
     "provider": "vydra"
+  },
+  {
+    "id": "wan-ai/Wan2.1-T2V-1.3B",
+    "provider": "deepinfra"
   },
   {
     "id": "wan-ai/Wan2.2-I2V-A14B",

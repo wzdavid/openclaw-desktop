@@ -145,6 +145,10 @@ export const GENERATED_PROVIDER_CATALOG: Record<string, GeneratedProviderCatalog
       "supportsImage": true
     },
     {
+      "id": "xai/grok-4.3",
+      "supportsImage": true
+    },
+    {
       "id": "xai/grok-code-fast-1",
       "suggestedAlias": "grok-code",
       "supportsImage": false
@@ -177,6 +181,10 @@ export const GENERATED_PROVIDER_CATALOG: Record<string, GeneratedProviderCatalog
       "supportsImage": true
     },
     {
+      "id": "mistral/mistral-medium-3-5",
+      "supportsImage": true
+    },
+    {
       "id": "mistral/mistral-small-latest",
       "suggestedAlias": "mistral-small",
       "supportsImage": true
@@ -189,19 +197,17 @@ export const GENERATED_PROVIDER_CATALOG: Record<string, GeneratedProviderCatalog
   ],
   "openrouter": [
     {
+      "id": "moonshotai/kimi-k2.5",
+      "supportsImage": true
+    },
+    {
+      "id": "moonshotai/kimi-k2.6",
+      "supportsImage": true
+    },
+    {
       "id": "openrouter/auto",
       "suggestedAlias": "auto",
       "supportsImage": true
-    },
-    {
-      "id": "openrouter/healer-alpha",
-      "suggestedAlias": "healer",
-      "supportsImage": true
-    },
-    {
-      "id": "openrouter/hunter-alpha",
-      "suggestedAlias": "hunter",
-      "supportsImage": false
     }
   ],
   "groq": [
@@ -636,6 +642,14 @@ export const GENERATED_PROVIDER_CATALOG: Record<string, GeneratedProviderCatalog
     {
       "id": "deepseek/deepseek-reasoner",
       "suggestedAlias": "deepseek-r",
+      "supportsImage": false
+    },
+    {
+      "id": "deepseek/deepseek-v4-flash",
+      "supportsImage": false
+    },
+    {
+      "id": "deepseek/deepseek-v4-pro",
       "supportsImage": false
     }
   ],
