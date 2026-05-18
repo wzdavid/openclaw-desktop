@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════
 // Edition / product feature registry (OpenClaw Desktop)
-// Mirrors the rcesbot pattern: a fixed registry + feature flags
+// Uses a fixed registry + feature flags
 // that can be overridden at runtime via `window.aegis?.edition`.
 // Future: license server or build-time white-label can inject the same shape.
 // ═══════════════════════════════════════════════════════════

@@ -22,8 +22,9 @@ const providerAliases = {
   'qwen-dashscope': 'qwen',
   'z.ai': 'zai',
   'z-ai': 'zai',
-  'kimi-coding': 'moonshot',
-  'kimi-code': 'moonshot',
+  kimi: 'kimi-coding',
+  'kimi-coding': 'kimi-coding',
+  'kimi-code': 'kimi-coding',
 };
 
 const normalizeProviderId = (providerId) => {
@@ -53,9 +54,30 @@ function extractTemplates() {
         supportsImage: supportsMatch?.[1] === 'true' ? true : supportsMatch?.[1] === 'false' ? false : undefined,
       });
     }
-    providerMap[providerId] = models;
+    providerMap[providerId] = mergeModelLists(providerMap[providerId], models);
   }
   return providerMap;
+}
+
+function mergeModelLists(existingRows, nextRows) {
+  const map = new Map();
+  for (const row of existingRows || []) {
+    const id = String(row?.id || '').trim();
+    if (!id) continue;
+    map.set(id, { ...row });
+  }
+  for (const row of nextRows || []) {
+    const id = String(row?.id || '').trim();
+    if (!id) continue;
+    const prev = map.get(id);
+    map.set(id, {
+      ...prev,
+      ...row,
+      suggestedAlias: row?.suggestedAlias ?? prev?.suggestedAlias,
+      supportsImage: typeof row?.supportsImage === 'boolean' ? row.supportsImage : prev?.supportsImage,
+    });
+  }
+  return Array.from(map.values());
 }
 
 function indexTemplateModelsById(templateRows) {
@@ -318,12 +340,6 @@ async function generate() {
   const finalMap = {};
   for (const providerId of providerIds) {
     const templateRows = fromTemplates[providerId] || [];
-    const apiModels = await loadApiModuleModels(providerId);
-    if (apiModels.length > 0) {
-      const enriched = await enrichModelsWithExtensionMetadata(providerId, apiModels);
-      finalMap[providerId] = mergeTemplateMetadata(providerId, enriched, templateRows);
-      continue;
-    }
     const templateModels = collectModelsFromProvider(providerId, templateRows);
     const enriched = await enrichModelsWithExtensionMetadata(providerId, templateModels);
     finalMap[providerId] = mergeTemplateMetadata(providerId, enriched, templateRows);

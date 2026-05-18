@@ -415,6 +415,7 @@ export const PROVIDER_TEMPLATES: ProviderTemplate[] = [
     api: 'openai-completions',
     popularModels: [
       { id: 'moonshot/kimi-k2.5',              suggestedAlias: 'kimi-k2.5', supportsImage: true     },
+      { id: 'moonshot/kimi-k2.6',              suggestedAlias: 'kimi-k2.6', supportsImage: true     },
       { id: 'moonshot/kimi-k2-thinking',       suggestedAlias: 'kimi-thinking'  },
       { id: 'moonshot/kimi-k2-thinking-turbo', suggestedAlias: 'kimi-think-t'   },
       { id: 'moonshot/kimi-k2-turbo',          suggestedAlias: 'kimi-turbo'     },

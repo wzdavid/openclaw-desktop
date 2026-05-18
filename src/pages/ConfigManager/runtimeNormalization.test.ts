@@ -14,10 +14,15 @@ const generatedProviderCatalog = {
   openai: [
     { id: 'openai/gpt-4o', supportsImage: true },
   ],
+  'kimi-coding': [
+    { id: 'kimi-coding/k2p5', supportsImage: false },
+  ],
 };
 
 function canonicalProviderId(providerId: string | undefined): string {
-  return String(providerId ?? '').trim().toLowerCase();
+  const normalized = String(providerId ?? '').trim().toLowerCase();
+  if (normalized === 'kimi-coding' || normalized === 'kimi-code' || normalized === 'kimi') return 'kimi-coding';
+  return normalized;
 }
 
 function stripProviderPrefix(providerId: string, modelId: string | undefined): string {
@@ -147,6 +152,34 @@ test('normalizeModelsProvidersForRuntime preserves explicit models for custom-li
       models: [
         { id: 'llama3.2-vision', name: 'Llama 3.2 Vision', input: ['text'] },
       ],
+    },
+  });
+});
+
+test('normalizeModelsProvidersForRuntime resolves Kimi Coding runtime alias to generated catalog key', () => {
+  const providers = {
+    kimi: {
+      apiKey: 'secret',
+      models: [
+        { id: 'kimi/k2p5', name: 'Kimi Coding K2.5' },
+      ],
+    },
+  };
+
+  const normalized = normalizeModelsProvidersForRuntime({
+    providers,
+    agents: undefined,
+    generatedProviderCatalog,
+    canonicalProviderId,
+    stripProviderPrefix,
+    canonicalizeModelRef,
+    getTemplateById: (providerId) => (providerId === 'kimi-coding' ? { id: 'kimi-coding' } : undefined),
+  });
+
+  assert.deepEqual(normalized, {
+    'kimi-coding': {
+      apiKey: 'secret',
+      models: [],
     },
   });
 });

@@ -218,7 +218,7 @@ function getProviderFromProfileKey(profileKey: string): string {
 function normalizeProviderIdForCatalog(providerId: string): string {
   const normalized = providerId.trim().toLowerCase();
   if (normalized === 'modelstudio' || normalized === 'qwencloud' || normalized === 'qwen-dashscope') return 'qwen';
-  if (normalized === 'kimi-coding' || normalized === 'kimi-code' || normalized === 'kimi') return 'moonshot';
+  if (normalized === 'kimi-coding' || normalized === 'kimi-code' || normalized === 'kimi') return 'kimi-coding';
   if (normalized === 'z.ai' || normalized === 'z-ai') return 'zai';
   return normalized;
 }
@@ -2039,8 +2039,8 @@ function ConfigureStep({ config, tmpl, catalogEntry, onBack, onSubmit, saving }:
   const modelSourceInfo = useMemo(() => {
     if (!isCustomLike) {
       return {
-        label: t('config.modelSourceSynced', 'Source: Synced Catalog'),
-        detail: t('config.modelSourceSyncedHint', 'Using rcesbot catalog synchronized from OpenClaw source definitions'),
+        label: t('config.modelSourceSynced', 'Source: Built-in Catalog'),
+        detail: t('config.modelSourceSyncedHint', 'Using the OpenClaw Desktop built-in provider catalog'),
         className: 'bg-green-500/10 text-green-300 border-green-500/20',
       };
     }

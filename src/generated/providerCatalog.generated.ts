@@ -86,33 +86,27 @@ export const GENERATED_PROVIDER_CATALOG: Record<string, GeneratedProviderCatalog
   "xai": [
     {
       "id": "xai/grok-3",
-      "suggestedAlias": "grok-3",
-      "supportsImage": false
+      "suggestedAlias": "grok-3"
     },
     {
       "id": "xai/grok-3-fast",
-      "suggestedAlias": "grok-3-fast",
-      "supportsImage": false
+      "suggestedAlias": "grok-3-fast"
     },
     {
       "id": "xai/grok-3-mini",
-      "suggestedAlias": "grok-3-mini",
-      "supportsImage": false
+      "suggestedAlias": "grok-3-mini"
     },
     {
       "id": "xai/grok-3-mini-fast",
-      "suggestedAlias": "g3-mini-fast",
-      "supportsImage": false
+      "suggestedAlias": "g3-mini-fast"
     },
     {
       "id": "xai/grok-4",
-      "suggestedAlias": "grok-4",
-      "supportsImage": false
+      "suggestedAlias": "grok-4"
     },
     {
       "id": "xai/grok-4-0709",
-      "suggestedAlias": "grok-4-0709",
-      "supportsImage": false
+      "suggestedAlias": "grok-4-0709"
     },
     {
       "id": "xai/grok-4-1-fast",
@@ -145,30 +139,22 @@ export const GENERATED_PROVIDER_CATALOG: Record<string, GeneratedProviderCatalog
       "supportsImage": true
     },
     {
-      "id": "xai/grok-4.3",
-      "supportsImage": true
-    },
-    {
       "id": "xai/grok-code-fast-1",
-      "suggestedAlias": "grok-code",
-      "supportsImage": false
+      "suggestedAlias": "grok-code"
     }
   ],
   "mistral": [
     {
       "id": "mistral/codestral-latest",
-      "suggestedAlias": "codestral",
-      "supportsImage": false
+      "suggestedAlias": "codestral"
     },
     {
       "id": "mistral/devstral-medium-latest",
-      "suggestedAlias": "devstral",
-      "supportsImage": false
+      "suggestedAlias": "devstral"
     },
     {
       "id": "mistral/magistral-small",
-      "suggestedAlias": "magistral",
-      "supportsImage": false
+      "suggestedAlias": "magistral"
     },
     {
       "id": "mistral/mistral-large-latest",
@@ -178,10 +164,6 @@ export const GENERATED_PROVIDER_CATALOG: Record<string, GeneratedProviderCatalog
     {
       "id": "mistral/mistral-medium-2508",
       "suggestedAlias": "mistral-medium",
-      "supportsImage": true
-    },
-    {
-      "id": "mistral/mistral-medium-3-5",
       "supportsImage": true
     },
     {
@@ -197,17 +179,20 @@ export const GENERATED_PROVIDER_CATALOG: Record<string, GeneratedProviderCatalog
   ],
   "openrouter": [
     {
-      "id": "moonshotai/kimi-k2.5",
-      "supportsImage": true
-    },
-    {
-      "id": "moonshotai/kimi-k2.6",
-      "supportsImage": true
+      "id": "openrouter/anthropic/claude-sonnet-4-5",
+      "suggestedAlias": "sonnet"
     },
     {
       "id": "openrouter/auto",
-      "suggestedAlias": "auto",
-      "supportsImage": true
+      "suggestedAlias": "auto"
+    },
+    {
+      "id": "openrouter/healer-alpha",
+      "suggestedAlias": "healer"
+    },
+    {
+      "id": "openrouter/hunter-alpha",
+      "suggestedAlias": "hunter"
     }
   ],
   "groq": [
@@ -222,235 +207,101 @@ export const GENERATED_PROVIDER_CATALOG: Record<string, GeneratedProviderCatalog
   ],
   "together": [
     {
-      "id": "deepseek-ai/DeepSeek-R1",
-      "supportsImage": false
+      "id": "together/deepseek-ai/DeepSeek-R1",
+      "suggestedAlias": "ds-r1"
     },
     {
-      "id": "deepseek-ai/DeepSeek-V3.1",
-      "supportsImage": false
+      "id": "together/deepseek-ai/DeepSeek-V3.1",
+      "suggestedAlias": "ds-v3.1"
     },
     {
-      "id": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
-      "supportsImage": false
+      "id": "together/meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "suggestedAlias": "llama-3.3"
     },
     {
-      "id": "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "id": "together/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "suggestedAlias": "llama-mav",
       "supportsImage": true
     },
     {
-      "id": "meta-llama/Llama-4-Scout-17B-16E-Instruct",
+      "id": "together/meta-llama/Llama-4-Scout-17B-16E-Instruct",
+      "suggestedAlias": "llama-scout",
       "supportsImage": true
     },
     {
-      "id": "moonshotai/Kimi-K2-Instruct-0905",
-      "supportsImage": false
+      "id": "together/moonshotai/Kimi-K2-Instruct-0905",
+      "suggestedAlias": "kimi-k2"
     },
     {
-      "id": "moonshotai/Kimi-K2.5",
-      "supportsImage": true
-    },
-    {
-      "id": "zai-org/GLM-4.7",
-      "supportsImage": false
-    }
-  ],
-  "kilocode": [
-    {
-      "id": "kilo/auto",
-      "supportsImage": true
-    }
-  ],
-  "venice": [
-    {
-      "id": "venice/claude-opus-4-5",
-      "supportsImage": true
-    },
-    {
-      "id": "venice/claude-opus-4-6",
-      "suggestedAlias": "opus-4.6",
-      "supportsImage": true
-    },
-    {
-      "id": "venice/claude-sonnet-4-5",
-      "supportsImage": true
-    },
-    {
-      "id": "venice/claude-sonnet-4-6",
-      "suggestedAlias": "sonnet-4.6",
-      "supportsImage": true
-    },
-    {
-      "id": "venice/deepseek-v3.2",
-      "suggestedAlias": "deepseek-v3.2",
-      "supportsImage": false
-    },
-    {
-      "id": "venice/gemini-3-1-pro-preview",
-      "supportsImage": true
-    },
-    {
-      "id": "venice/gemini-3-flash-preview",
-      "supportsImage": true
-    },
-    {
-      "id": "venice/gemini-3-pro-preview",
-      "suggestedAlias": "gemini-3-pro",
-      "supportsImage": true
-    },
-    {
-      "id": "venice/google-gemma-3-27b-it",
-      "supportsImage": true
-    },
-    {
-      "id": "venice/grok-41-fast",
-      "supportsImage": true
-    },
-    {
-      "id": "venice/grok-code-fast-1",
-      "suggestedAlias": "grok-code",
-      "supportsImage": false
-    },
-    {
-      "id": "venice/hermes-3-llama-3.1-405b",
-      "supportsImage": false
-    },
-    {
-      "id": "venice/kimi-k2-5",
+      "id": "together/moonshotai/Kimi-K2.5",
       "suggestedAlias": "kimi-k2.5",
       "supportsImage": true
     },
     {
-      "id": "venice/kimi-k2-thinking",
-      "supportsImage": false
+      "id": "together/zai-org/GLM-4.7",
+      "suggestedAlias": "glm-4.7"
+    }
+  ],
+  "kilocode": [
+    {
+      "id": "kilocode/kilo/auto",
+      "suggestedAlias": "kilo-auto"
+    }
+  ],
+  "venice": [
+    {
+      "id": "venice/claude-opus-4-6",
+      "suggestedAlias": "opus-4.6"
     },
     {
-      "id": "venice/llama-3.2-3b",
-      "supportsImage": false
+      "id": "venice/claude-sonnet-4-6",
+      "suggestedAlias": "sonnet-4.6"
     },
     {
-      "id": "venice/llama-3.3-70b",
-      "supportsImage": false
+      "id": "venice/deepseek-v3.2",
+      "suggestedAlias": "deepseek-v3.2"
     },
     {
-      "id": "venice/minimax-m21",
-      "supportsImage": false
+      "id": "venice/gemini-3-pro-preview",
+      "suggestedAlias": "gemini-3-pro"
     },
     {
-      "id": "venice/minimax-m25",
-      "supportsImage": false
+      "id": "venice/grok-code-fast-1",
+      "suggestedAlias": "grok-code"
     },
     {
-      "id": "venice/mistral-31-24b",
-      "supportsImage": true
-    },
-    {
-      "id": "venice/nvidia-nemotron-3-nano-30b-a3b",
-      "supportsImage": false
-    },
-    {
-      "id": "venice/olafangensan-glm-4.7-flash-heretic",
-      "supportsImage": false
-    },
-    {
-      "id": "venice/openai-gpt-4o-2024-11-20",
-      "supportsImage": true
-    },
-    {
-      "id": "venice/openai-gpt-4o-mini-2024-07-18",
-      "supportsImage": true
-    },
-    {
-      "id": "venice/openai-gpt-52",
-      "supportsImage": false
-    },
-    {
-      "id": "venice/openai-gpt-52-codex",
-      "supportsImage": true
-    },
-    {
-      "id": "venice/openai-gpt-53-codex",
-      "supportsImage": true
+      "id": "venice/kimi-k2-5",
+      "suggestedAlias": "kimi-k2.5"
     },
     {
       "id": "venice/openai-gpt-54",
-      "suggestedAlias": "gpt-5.4",
-      "supportsImage": true
-    },
-    {
-      "id": "venice/openai-gpt-oss-120b",
-      "supportsImage": false
-    },
-    {
-      "id": "venice/qwen3-235b-a22b-instruct-2507",
-      "supportsImage": false
-    },
-    {
-      "id": "venice/qwen3-235b-a22b-thinking-2507",
-      "supportsImage": false
-    },
-    {
-      "id": "venice/qwen3-4b",
-      "supportsImage": false
+      "suggestedAlias": "gpt-5.4"
     },
     {
       "id": "venice/qwen3-5-35b-a3b",
-      "suggestedAlias": "qwen3.5",
-      "supportsImage": true
-    },
-    {
-      "id": "venice/qwen3-coder-480b-a35b-instruct",
-      "supportsImage": false
-    },
-    {
-      "id": "venice/qwen3-coder-480b-a35b-instruct-turbo",
-      "supportsImage": false
-    },
-    {
-      "id": "venice/qwen3-next-80b",
-      "supportsImage": false
+      "suggestedAlias": "qwen3.5"
     },
     {
       "id": "venice/qwen3-vl-235b-a22b",
-      "suggestedAlias": "qwen3-vl",
-      "supportsImage": true
-    },
-    {
-      "id": "venice/venice-uncensored",
-      "supportsImage": false
-    },
-    {
-      "id": "venice/zai-org-glm-4.6",
-      "supportsImage": false
-    },
-    {
-      "id": "venice/zai-org-glm-4.7",
-      "supportsImage": false
-    },
-    {
-      "id": "venice/zai-org-glm-4.7-flash",
-      "supportsImage": false
-    },
-    {
-      "id": "venice/zai-org-glm-5",
-      "supportsImage": false
+      "suggestedAlias": "qwen3-vl"
     }
   ],
   "huggingface": [
     {
-      "id": "deepseek-ai/DeepSeek-R1",
-      "supportsImage": false
+      "id": "huggingface/deepseek-ai/DeepSeek-R1",
+      "suggestedAlias": "deepseek-r1"
     },
     {
-      "id": "deepseek-ai/DeepSeek-V3.1",
-      "supportsImage": false
+      "id": "huggingface/deepseek-ai/DeepSeek-V3.1",
+      "suggestedAlias": "deepseek-v3.1"
     },
     {
-      "id": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
-      "supportsImage": false
+      "id": "huggingface/meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "suggestedAlias": "llama-3.3"
     },
     {
-      "id": "openai/gpt-oss-120b",
-      "supportsImage": false
+      "id": "huggingface/openai/gpt-oss-120b",
+      "suggestedAlias": "gpt-oss-120b"
     }
   ],
   "litellm": [],
@@ -470,20 +321,20 @@ export const GENERATED_PROVIDER_CATALOG: Record<string, GeneratedProviderCatalog
   ],
   "nvidia": [
     {
-      "id": "minimaxai/minimax-m2.5",
-      "supportsImage": false
+      "id": "nvidia/minimaxai/minimax-m2.5",
+      "suggestedAlias": "minimax-m2.5"
     },
     {
-      "id": "moonshotai/kimi-k2.5",
-      "supportsImage": false
+      "id": "nvidia/moonshotai/kimi-k2.5",
+      "suggestedAlias": "kimi-k2.5"
     },
     {
-      "id": "nvidia/nemotron-3-super-120b-a12b",
-      "supportsImage": false
+      "id": "nvidia/nvidia/nemotron-3-super-120b-a12b",
+      "suggestedAlias": "nemotron-super"
     },
     {
-      "id": "zai/glm5",
-      "supportsImage": false
+      "id": "nvidia/z-ai/glm5",
+      "suggestedAlias": "glm-5"
     }
   ],
   "github-copilot": [
@@ -535,34 +386,34 @@ export const GENERATED_PROVIDER_CATALOG: Record<string, GeneratedProviderCatalog
   "minimax": [
     {
       "id": "minimax/MiniMax-M2.7",
-      "suggestedAlias": "minimax-m27",
-      "supportsImage": false
+      "suggestedAlias": "minimax-m27"
     },
     {
       "id": "minimax/MiniMax-M2.7-highspeed",
-      "suggestedAlias": "minimax-fast",
-      "supportsImage": false
+      "suggestedAlias": "minimax-fast"
     }
   ],
   "moonshot": [
     {
       "id": "moonshot/kimi-k2-thinking",
-      "supportsImage": false
+      "suggestedAlias": "kimi-thinking"
     },
     {
       "id": "moonshot/kimi-k2-thinking-turbo",
-      "supportsImage": false
+      "suggestedAlias": "kimi-think-t"
     },
     {
       "id": "moonshot/kimi-k2-turbo",
-      "supportsImage": false
+      "suggestedAlias": "kimi-turbo"
     },
     {
       "id": "moonshot/kimi-k2.5",
+      "suggestedAlias": "kimi-k2.5",
       "supportsImage": true
     },
     {
       "id": "moonshot/kimi-k2.6",
+      "suggestedAlias": "kimi-k2.6",
       "supportsImage": true
     }
   ],
@@ -636,29 +487,18 @@ export const GENERATED_PROVIDER_CATALOG: Record<string, GeneratedProviderCatalog
   "deepseek": [
     {
       "id": "deepseek/deepseek-chat",
-      "suggestedAlias": "deepseek-chat",
-      "supportsImage": false
+      "suggestedAlias": "deepseek-chat"
     },
     {
       "id": "deepseek/deepseek-reasoner",
-      "suggestedAlias": "deepseek-r",
-      "supportsImage": false
-    },
-    {
-      "id": "deepseek/deepseek-v4-flash",
-      "supportsImage": false
-    },
-    {
-      "id": "deepseek/deepseek-v4-pro",
-      "supportsImage": false
+      "suggestedAlias": "deepseek-r"
     }
   ],
   "siliconflow": [],
   "qianfan": [
     {
       "id": "qianfan/deepseek-v3.2",
-      "suggestedAlias": "ds-v3",
-      "supportsImage": false
+      "suggestedAlias": "ds-v3"
     },
     {
       "id": "qianfan/ernie-5.0-thinking-preview",
@@ -669,13 +509,11 @@ export const GENERATED_PROVIDER_CATALOG: Record<string, GeneratedProviderCatalog
   "qwen": [
     {
       "id": "qwen/glm-4.7",
-      "suggestedAlias": "glm-4.7",
-      "supportsImage": false
+      "suggestedAlias": "glm-4.7"
     },
     {
       "id": "qwen/glm-5",
-      "suggestedAlias": "glm-5",
-      "supportsImage": false
+      "suggestedAlias": "glm-5"
     },
     {
       "id": "qwen/kimi-k2.5",
@@ -684,23 +522,19 @@ export const GENERATED_PROVIDER_CATALOG: Record<string, GeneratedProviderCatalog
     },
     {
       "id": "qwen/MiniMax-M2.5",
-      "suggestedAlias": "minimax-m2.5",
-      "supportsImage": false
+      "suggestedAlias": "minimax-m2.5"
     },
     {
       "id": "qwen/qwen3-coder-next",
-      "suggestedAlias": "qwen-coder-next",
-      "supportsImage": false
+      "suggestedAlias": "qwen-coder-next"
     },
     {
       "id": "qwen/qwen3-coder-plus",
-      "suggestedAlias": "qwen-coder-plus",
-      "supportsImage": false
+      "suggestedAlias": "qwen-coder-plus"
     },
     {
       "id": "qwen/qwen3-max-2026-01-23",
-      "suggestedAlias": "qwen3-max",
-      "supportsImage": false
+      "suggestedAlias": "qwen3-max"
     },
     {
       "id": "qwen/qwen3.5-plus",
@@ -715,10 +549,6 @@ export const GENERATED_PROVIDER_CATALOG: Record<string, GeneratedProviderCatalog
   ],
   "volcengine": [
     {
-      "id": "volcengine/ark-code-latest",
-      "supportsImage": false
-    },
-    {
       "id": "volcengine/deepseek-v3-2-251201",
       "suggestedAlias": "deepseek-v3.2",
       "supportsImage": true
@@ -729,40 +559,23 @@ export const GENERATED_PROVIDER_CATALOG: Record<string, GeneratedProviderCatalog
       "supportsImage": true
     },
     {
-      "id": "volcengine/doubao-seed-code",
-      "supportsImage": false
-    },
-    {
       "id": "volcengine/doubao-seed-code-preview-251028",
       "suggestedAlias": "doubao-code",
       "supportsImage": true
     },
     {
-      "id": "volcengine/glm-4-7-251222",
-      "supportsImage": true
+      "id": "volcengine/moonshotai/kimi-k2.5",
+      "suggestedAlias": "kimi-k2.5"
     },
     {
-      "id": "volcengine/glm-4.7",
-      "supportsImage": false
-    },
-    {
-      "id": "volcengine/kimi-k2-5-260127",
-      "supportsImage": true
-    },
-    {
-      "id": "volcengine/kimi-k2-thinking",
-      "supportsImage": false
-    },
-    {
-      "id": "volcengine/kimi-k2.5",
-      "supportsImage": false
+      "id": "volcengine/zai-org/glm-4.7",
+      "suggestedAlias": "glm-4.7"
     }
   ],
   "xiaomi": [
     {
       "id": "xiaomi/mimo-v2-flash",
-      "suggestedAlias": "mimo-flash",
-      "supportsImage": false
+      "suggestedAlias": "mimo-flash"
     },
     {
       "id": "xiaomi/mimo-v2-omni",
@@ -771,8 +584,13 @@ export const GENERATED_PROVIDER_CATALOG: Record<string, GeneratedProviderCatalog
     },
     {
       "id": "xiaomi/mimo-v2-pro",
-      "suggestedAlias": "mimo-pro",
-      "supportsImage": false
+      "suggestedAlias": "mimo-pro"
+    }
+  ],
+  "kimi-coding": [
+    {
+      "id": "kimi-coding/k2p5",
+      "suggestedAlias": "kimi-code"
     }
   ],
   "ollama": [

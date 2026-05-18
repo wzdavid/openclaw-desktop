@@ -419,7 +419,7 @@ export function ConfigManagerPage() {
     const normalized = String(providerId ?? '').trim().toLowerCase();
     if (normalized === 'modelstudio' || normalized === 'qwencloud' || normalized === 'qwen-dashscope') return 'qwen';
     if (normalized === 'z.ai' || normalized === 'z-ai') return 'zai';
-    if (normalized === 'kimi-coding' || normalized === 'kimi-code') return 'kimi';
+    if (normalized === 'kimi-coding' || normalized === 'kimi-code' || normalized === 'kimi') return 'kimi-coding';
     return normalized;
   };
 

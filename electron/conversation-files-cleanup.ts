@@ -3,8 +3,6 @@
  * - `<shared>/voice/` (voice recordings from the gateway)
  * - `<shared>/.openclaw-desktop/uploads/` (session-staged uploads; optional)
  *
- * Mirrors the TTL + total-size budget behavior used in RCESBot's managed-files cleanup,
- * without depending on workspace output indexing.
  */
 
 import * as fs from 'fs';

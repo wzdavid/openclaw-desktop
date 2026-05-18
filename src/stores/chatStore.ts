@@ -382,7 +382,7 @@ function titleBarStateFromSession(
   };
 }
 
-// ─── Helpers: session-scoped message / derived caches (rcesbot parity) ───
+// ─── Helpers: session-scoped message / derived caches ───
 
 const getSessionMessages = (state: ChatState, key: string): ChatMessage[] =>
   state.messagesPerSession[key] ?? (key === state.activeSessionKey ? state.messages : []);

@@ -1,6 +1,6 @@
 {
   "name": "openclaw-desktop",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "OpenClaw Desktop — OpenClaw 桌面客户端，连接 OpenClaw Gateway",
   "main": "dist-electron/main.js",
   "author": "Wei ZHANG",
@@ -27,7 +27,7 @@
     "package:mac": "bash -c 'ulimit -n 65536 >/dev/null 2>&1 || true; if [ -f .env.apple ]; then source .env.apple; fi; npm run build && ./node_modules/.bin/electron-rebuild -f -w node-pty --arch x64 && electron-builder --mac --x64 && ./node_modules/.bin/electron-rebuild -f -w node-pty --arch arm64 && electron-builder --mac --arm64'",
     "package:win": "npm run build && electron-builder --win",
     "package:win:lite": "npm run build:win:lite",
-    "test:config-tools": "node --import tsx --test src/pages/ConfigManager/toolsProviderDetection.test.ts src/pages/ConfigManager/toolsProviderMutation.test.ts src/pages/ConfigManager/runtimeNormalization.test.ts src/pages/ConfigManager/providerModelSelection.test.ts",
+    "test:config-tools": "node --import tsx --test src/pages/ConfigManager/toolsProviderDetection.test.ts src/pages/ConfigManager/toolsProviderMutation.test.ts src/pages/ConfigManager/runtimeNormalization.test.ts src/pages/ConfigManager/providerModelSelection.test.ts src/pages/ConfigManager/providerCatalog.generated.test.ts",
     "test:chat-handler": "node --import tsx --test src/services/gateway/ChatHandler.test.ts",
     "test:processing": "node --import tsx --test src/processing/buildSemanticBlocks.test.ts",
     "test:electron-utils": "node --import tsx --test electron/output-files-index.test.ts",
