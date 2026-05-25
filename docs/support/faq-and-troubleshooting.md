@@ -1,154 +1,148 @@
-## FAQ 与故障排查
+## FAQ and Troubleshooting
 
-本文件汇总常见问题与排查建议，便于用户在遇到问题时自助解决。
+[English](./faq-and-troubleshooting.md) | [简体中文](./faq-and-troubleshooting.zh-CN.md)
+
+This document collects common questions and troubleshooting steps so users can solve typical issues on their own.
 
 ---
 
-### 1. 常见问题（FAQ）
+### 1. FAQ
 
-#### Q1：应用内终端里输入 `openclaw` 提示 command not found？
+#### Q1: Why does `openclaw` return `command not found` in the built-in terminal?
 
-- Desktop 已在内置终端中自动把**捆绑的 OpenClaw CLI** 加入 PATH，理论上新开的终端可以直接运行：
+- Desktop automatically adds the bundled OpenClaw CLI to `PATH` inside the built-in terminal, so new terminals should normally run commands such as:
   - `openclaw gateway status`
   - `openclaw pairing approve`
-  - 等其它 OpenClaw 命令。
-- 若仍然报 `command not found`，请检查：
-  1. 构建时是否执行过 `npm run bundle:node`（或使用官方已捆绑的安装包）；
-  2. `resources/node/` 目录下是否存在 Node 与 OpenClaw 相关文件。
+- If it still fails, check:
+  1. whether `npm run bundle:node` was executed during development, or whether you are using an official bundled build
+  2. whether `resources/node/` contains the Node.js runtime and OpenClaw files
 
-#### Q2：OpenClaw 实际安装在什么位置？系统终端怎么用？
+#### Q2: Where is OpenClaw installed, and how do I use it from a system terminal?
 
-- **应用内终端**：
-  - OpenClaw 随应用捆绑，位于应用资源目录的 `node/node_modules/openclaw/`；
-  - 开发环境下路径通常类似：`./resources/node/node_modules/openclaw/`。
-- **系统终端（zsh、PowerShell 等）**：
-  - 默认不会自动把应用内捆绑的 CLI 注入系统 PATH；
-  - 使用方式：
-    1. 全局安装：
-       - `npm install -g openclaw`
-    2. 直接调用应用内 Node + CLI（路径因平台和安装位置而异）：
-       - 开发环境示例：  
-         `./resources/node/bin/node ./resources/node/node_modules/openclaw/openclaw.mjs gateway status`
+- **Inside the app terminal**
+  - OpenClaw is bundled with the app under `node/node_modules/openclaw/`
+  - in development this is usually similar to `./resources/node/node_modules/openclaw/`
+- **From a system terminal**
+  - the bundled CLI is not automatically added to the system `PATH`
+  - you can either:
+    1. install globally with `npm install -g openclaw`
+    2. call the bundled Node.js and CLI directly, for example:
+       `./resources/node/bin/node ./resources/node/node_modules/openclaw/openclaw.mjs gateway status`
 
-#### Q3：启动时提示 "openclaw.mjs not found" 怎么办？
+#### Q3: What should I do if startup says `openclaw.mjs not found`?
 
-- 这种情况通常说明还没有完成「捆绑 Node + OpenClaw」的初始化步骤。
-- 解决方法：
-  - 开发环境：运行 `npm run bundle:node`（或在 Windows 上运行 `npm run bundle:node:win`）；
-  - 生产环境：优先使用已经正确打包的官方安装包，而不是自己直接运行源码。
+- This usually means the bundled Node.js + OpenClaw setup step was not completed.
+- Fix:
+  - in development, run `npm run bundle:node` or `npm run bundle:node:win`
+  - in production, prefer the official packaged installer instead of running the source tree directly
 
-#### Q4：端口 18789 被占用怎么办？
+#### Q4: What if port `18789` is already in use?
 
-- 默认 Gateway 端口为 `18789`。若被占用：
-  - 在 `.env` 中设置其它端口，例如：
+- The default Gateway port is `18789`. If it is occupied:
+  - set another port in `.env`, for example:
 
 ```env
 OPENCLAW_PORT=18800
 ```
 
-  - 或在系统终端中查找并关闭占用进程，例如 macOS：
+  - or find and stop the process using the port, for example on macOS:
 
 ```bash
 lsof -i :18789
 ```
 
-- 产品层面建议：
-  - 在桌面应用中对该错误给出清晰提示和操作建议，而不是简单报错后退出。
+- Product recommendation:
+  - Desktop should provide a clear error message and next-step guidance instead of failing silently or exiting abruptly.
 
-#### Q5：首次使用 OpenClaw 如何配置？
+#### Q5: How should first-time users configure OpenClaw?
 
-- 建议通过 Desktop 的 Control UI（在 Electron 窗口中打开的控制台/配置页面）：
-  - 按页面引导配置 API Key、默认模型等；
-  - 核心配置最终落地到 `~/.openclaw/openclaw.json` 中。
+- The recommended path is through the Desktop Control UI or config pages:
+  - follow the UI to configure API keys, default models, and related settings
+  - the resulting config is written to `~/.openclaw/openclaw.json`
 
-#### Q6：可以修改「Main Agent」的名称吗？
+#### Q6: Can I rename the `Main Agent`?
 
-- 可以。一般有两种方式：
-  1. 在 Desktop 应用内：
-     - 打开 **配置 → 智能体**；
-     - 在智能体列表中找到主智能体（`id = main`），编辑其名称；
-  2. 直接编辑 OpenClaw 配置：
-     - 在 `~/.openclaw/openclaw.json` 中找到 `agents.list` 里 `id = main` 的项；
-     - 为其设置或修改 `name` 字段。
-- 修改完成后，聊天页左上角与对话中的助手展示应同步更新。
+- Yes. You can either:
+  1. use the Desktop app:
+     - open **Settings -> Agents**
+     - find the main agent with `id = main`
+     - edit its display name
+  2. edit the OpenClaw config directly:
+     - open `~/.openclaw/openclaw.json`
+     - find the `agents.list` entry whose `id` is `main`
+     - change its `name`
+- After saving, the assistant name should update in the chat UI as well.
 
-#### Q7：构建时提示 "skipped macOS application code signing" 有什么影响？
+#### Q7: What does `skipped macOS application code signing` mean during a build?
 
-- 含义：
-  - 当前构建没有进行签名（或仅进行了部分签名）；
-  - 构建产物在本机仍可使用。
-- 影响：
-  - 对个人/测试环境影响不大；
-  - 若要对外大规模分发，建议配置完整的签名与公证，以减少用户侧的安全弹窗和失败风险。
+- It means the current build was not fully code-signed.
+- The artifact can still work locally.
+- For broad external distribution, full signing and notarization are recommended to reduce security prompts and installation failures.
 
-#### Q8：国内访问 GitHub 不稳定 / 更新检查失败或下载很慢怎么办？
+#### Q8: What if GitHub is slow or update checks fail in mainland China?
 
-- **原因**：应用默认从 GitHub Releases 检查更新并下载安装包，在国内常出现连接不稳定或下载速度很慢的情况。
-- **建议**：
-  1. **手动更新**：在应用内打开「设置」或「关于」→ 点击「检查更新」；若提示无法连接，可点击「打开下载页」或「手动下载」，在文档/下载页中选择**国内可用链接**（如 Gitee 镜像、对象存储 CDN、网盘等，以项目实际提供的为准）下载对应平台安装包后覆盖安装。
-  2. **使用代理**：若您已配置系统或网络代理，可尝试在代理环境下再次「检查更新」或让自动更新在后台完成下载。
-  3. **关闭自动更新**：若暂时不需要更新，可在设置中关闭「启动时检查更新」，需要时再手动检查或从上述下载页获取新版本。
-- 更多设计说明见 [更新与版本管理设计（§4 国内/多源更新方案）](../architecture/update-design.md#4-国内--多源更新方案应对-github-不可用与慢速)。
-
----
-
-### 2. 故障排查指南
-
-以下是一些常见问题的排查路径，可以在开发和运维时使用。
-
-#### 2.1 应用无法连接 Gateway
-
-1. 确认 Gateway 是否启动：
-   - 在应用内 Console/控制台页面查看状态；
-   - 或在终端中执行 `openclaw gateway status`。
-2. 检查端口配置：
-   - 是否修改过 `.env` 中的 `OPENCLAW_PORT`；
-   - 对应端口是否被其他进程占用。
-3. 查看日志：
-   - 打开 Console 页面查看最近日志输出；
-   - 如有必要，在系统终端中手动启动 Gateway 观察更详细日志。
-
-#### 2.2 桌面应用白屏或前端加载失败
-
-1. 确认前端构建是否成功（开发模式下）：
-   - `npm run dev` 是否有报错；
-   - Vite 开发服务器是否正常启动。
-2. 检查 Electron 打包/构建日志：
-   - 是否有文件缺失、路径错误或权限问题。
-3. 清理并重新构建：
-   - 删除临时构建目录（如 `dist/`、`dist-electron/`、`release/` 等）；
-   - 重新执行 `npm install`、`npm run bundle:node`、`npm run dev` 或对应构建命令。
-
-#### 2.3 自动更新失败或异常
-
-1. 检查网络环境：
-   - 是否能够访问 GitHub Releases；
-   - 是否存在代理、公司内网拦截等情况。
-2. 检查 `owner` / `repo` 配置：
-   - `electron/updater.ts` 与 `package.json` 中的 `GITHUB_REPO` / `build.publish.repo` 是否都指向 `openclaw-desktop`；
-   - 主仓库 Releases 需保持可访问。
-3. 查看日志：
-   - 在应用日志中查找 `electron-updater` 相关输出，定位错误代码与信息。
-
-#### 2.4 签名 / 公证相关错误
-
-1. 本机构建：
-   - 检查 `.env.apple` 是否存在且内容正确；
-   - 确认证书已安装在钥匙串中，且 `TEAM_ID` 等信息无误。
-2. CI 构建：
-   - 检查 GitHub Actions 中的 Secrets 是否填写正确；
-   - 检查流水线日志中是否有证书导入、登录 Apple 服务失败等信息。
+- **Reason**: the app checks GitHub Releases by default, which can be unstable or slow from mainland China.
+- **Suggestions**:
+  1. **Manual update**: open **Settings** or **About**, click **Check for Updates**, and if GitHub cannot be reached, use the download page or manual-download entry to fetch a package from project-provided domestic links such as mirrors or CDN storage.
+  2. **Use a proxy**: if your system or network already uses a proxy, retry the update check or let automatic update download in the background.
+  3. **Disable startup update checks**: if you do not need updates immediately, turn off startup checks and update manually later.
+- See [Update and Version Management Design](../architecture/update-design.md#4-multi-source-update-strategy-for-china) for the longer design discussion.
 
 ---
 
-### 3. 建议的后续改进
+### 2. Troubleshooting Guide
 
-从产品角度出发，后续可以考虑：
+#### 2.1 The app cannot connect to Gateway
 
-- 在 Desktop UI 内增加「帮助与支持」页面：
-  - 以卡片形式呈现本文档中的部分 FAQ；
-  - 提供「复制诊断信息」功能，方便用户反馈问题；
-  - 提供快速跳转到在线文档或 GitHub Issues 的入口。
-- 在出现错误时链接到对应的 FAQ 条目：
-  - 例如端口占用、找不到 `openclaw.mjs` 等常见错误；
-  - 点击错误提示中的「查看帮助」打开相应的说明。
+1. Confirm that Gateway is running:
+   - check the in-app console page
+   - or run `openclaw gateway status`
+2. Check the port configuration:
+   - did `.env` override `OPENCLAW_PORT`
+   - is another process already using that port
+3. Check logs:
+   - inspect recent output in the Desktop console page
+   - if needed, start Gateway manually from a system terminal for more verbose logs
+
+#### 2.2 The Desktop app shows a blank screen or the frontend fails to load
+
+1. Confirm that the frontend build succeeds in development:
+   - does `npm run dev` report errors
+   - is the Vite dev server actually running
+2. Check Electron packaging or build logs for missing files, bad paths, or permission issues.
+3. Clean and rebuild:
+   - remove temporary output folders such as `dist/`, `dist-electron/`, and `release/`
+   - rerun `npm install`, `npm run bundle:node`, `npm run dev`, or the matching build command
+
+#### 2.3 Auto update fails or behaves unexpectedly
+
+1. Check network access:
+   - can the machine reach GitHub Releases
+   - is a proxy or enterprise firewall interfering
+2. Check repository config:
+   - do `electron/updater.ts` and `package.json` both point `GITHUB_REPO` or `build.publish.repo` to `openclaw-desktop`
+   - is the main repository release page reachable
+3. Check logs:
+   - look for `electron-updater` messages in app logs and identify the exact error code
+
+#### 2.4 Signing or notarization errors
+
+1. For local builds:
+   - verify that `.env.apple` exists and is correct
+   - confirm that the certificate is installed in Keychain and that `TEAM_ID` and related values are correct
+2. For CI builds:
+   - verify the GitHub Actions secrets
+   - inspect workflow logs for certificate import or Apple authentication failures
+
+---
+
+### 3. Suggested Product Improvements
+
+Future improvements could include:
+
+- a dedicated **Help and Support** page in Desktop
+  - present key FAQ entries as cards
+  - offer a **Copy diagnostics** action for bug reports
+  - link to online documentation or GitHub Issues
+- error messages that link directly to matching FAQ entries
+  - for example, port conflicts or missing `openclaw.mjs`

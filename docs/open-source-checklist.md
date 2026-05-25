@@ -1,114 +1,116 @@
-# 开源前检查清单
+# Open-Source Readiness Checklist
 
-本清单用于 OpenClaw Desktop 首次开源前的最终确认。建议在仓库公开前逐项打勾。
+[English](./open-source-checklist.md) | [简体中文](./open-source-checklist.zh-CN.md)
 
-## 1. 代码与安全
+Use this checklist for the final review before OpenClaw Desktop is made public. Tick each item before opening the repository.
 
-- [ ] 仓库中不存在明文密钥、证书、令牌、账号密码。
-- [ ] `.env*`、证书文件、临时调试文件已在 `.gitignore` 中且未被提交。
-- [ ] 不包含仅内部可见的 URL、主机名、路径或联系人信息。
-- [ ] 安全披露入口可用（`SECURITY.md` 与 GitHub Security 配置一致）。
+## 1. Code and Security
 
-## 2. 文档一致性
+- [ ] No plaintext secrets, certificates, tokens, usernames, or passwords remain in the repository.
+- [ ] `.env*`, certificate files, and temporary debug files are ignored by `.gitignore` and were not committed.
+- [ ] No internal-only URLs, hostnames, paths, or contact details are exposed.
+- [ ] The security disclosure path is available and consistent with `SECURITY.md` and GitHub Security settings.
 
-- [x] `README.md` 与 `docs/README.md` 导航链接全部可用。
-- [x] 文档仅描述当前有效方案，不包含已废弃流程说明。
-- [x] 构建、发布、更新路径在文档中表述一致。
-- [x] 贡献与协作文档齐全：`CONTRIBUTING.md`、`SECURITY.md`、Issue/PR 模板、`CODEOWNERS`。
+## 2. Documentation Consistency
 
-## 3. 工作流与发布
+- [x] Navigation links in `README.md` and `docs/README.md` all work.
+- [x] Documents describe only the currently supported workflows and exclude retired processes.
+- [x] Build, release, and update flows are described consistently across documents.
+- [x] Contributor-facing docs are complete: `CONTRIBUTING.md`, `SECURITY.md`, issue/PR templates, and `CODEOWNERS`.
 
-- [ ] `Build` 工作流可在 `main` 或 PR 上成功运行。
-- [ ] `Build` 工作流 artifacts 可下载且命名与文档一致。
-- [ ] `Release` 工作流可由 `v*` tag 成功触发。
-- [ ] macOS 签名与 notarization 流程可稳定通过。
-- [ ] GitHub Release 资产完整（安装包、更新元数据、blockmap）。
+## 3. Workflows and Release
 
-## 4. 更新与安装验证
+- [ ] The `Build` workflow succeeds on `main` and pull requests.
+- [ ] `Build` workflow artifacts can be downloaded and match the documented names.
+- [ ] The `Release` workflow is triggered successfully by a `v*` tag.
+- [ ] macOS signing and notarization complete reliably.
+- [ ] GitHub Release assets are complete, including installers, update metadata, and blockmaps.
 
-- [x] 应用内更新源与发布源一致（主仓库 Releases）。
-- [ ] 新安装路径可用（macOS / Windows 至少各验证一次）。
-- [ ] 升级路径可用（从旧版本升级到当前版本至少验证一次）。
-- [x] FAQ 中常见安装/更新问题有对应排障指引。
+## 4. Update and Install Validation
 
-## 5. 仓库公开准备
+- [x] The in-app update source matches the release source in the main repository Releases.
+- [ ] Fresh installs work on macOS and Windows at least once each.
+- [ ] Upgrade paths from an older version to the current version work at least once.
+- [x] FAQ entries cover common installation and update issues.
 
-- [ ] 仓库简介、主题标签、License、主页链接已完善。
-- [ ] 默认分支保护策略已配置（如需要）。
-- [ ] 首个公开版本的 Release Notes 已准备。
-- [ ] 对外沟通文案已准备（发布说明/公告）。
+## 5. Repository Launch Preparation
 
-## 6. 公开后 24 小时观察项
+- [ ] Repository description, topics, license, and homepage URL are complete.
+- [ ] Default branch protection rules are configured if required.
+- [ ] Release notes for the first public version are ready.
+- [ ] External announcement copy is ready.
 
-- [ ] Actions 运行稳定，无高频失败。
-- [ ] Issue 模板可正常使用，反馈入口清晰。
-- [ ] 用户下载与安装反馈无阻塞问题。
-- [ ] 更新检查与下载链路无明显异常。
+## 6. First 24 Hours After Opening
 
----
-
-## 本次执行记录（2026-05-02）
-
-已完成的本地自动检查：
-
-- 文档链接检查：`docs/` 全量相对链接校验通过；并修复了 `providers-configuration.md` 中 2 个失效链接。
-- 文档入口检查：`README.md` 与 `docs/README.md` 相对链接校验通过。
-- 配置一致性检查：`package.json` 发布目标与 `electron/updater.ts` 更新源均指向主仓库。
-- 工作流结构检查：`build.yml`（仅构建与 artifacts）与 `release.yml`（tag 发布）职责分离清晰。
-- 最小构建检查：`npm run generate:provider-catalog` 执行成功。
-
-待在 GitHub 侧人工完成：
-
-- `Build` / `Release` 工作流实跑与产物完整性确认。
-- macOS 签名、公证稳定性确认。
-- 新装/升级路径实机验证。
-- 仓库公开设置（分支保护、Release Notes、对外公告）确认。
+- [ ] GitHub Actions run steadily without frequent failures.
+- [ ] Issue templates work and the feedback entry points are clear.
+- [ ] No blocking problems are reported for downloads or installation.
+- [ ] Update checks and downloads do not show obvious failures.
 
 ---
 
-## 下一步操作（人工执行）
+## Execution Notes (2026-05-02)
 
-按以下顺序执行，完成后可判定是否进入公开阶段。
+Completed local automated checks:
 
-### 1) 运行 Build 工作流（验证构建链路）
+- Documentation link check: all relative links under `docs/` passed, and two broken links in `providers-configuration.md` were fixed.
+- Documentation entry check: relative links in `README.md` and `docs/README.md` passed.
+- Configuration consistency check: the release target in `package.json` and the update source in `electron/updater.ts` both point to the main repository.
+- Workflow structure check: `build.yml` handles build validation and artifacts, while `release.yml` handles tag-based publishing.
+- Minimal build check: `npm run generate:provider-catalog` completed successfully.
 
-1. 打开 GitHub 仓库 `Actions` 页面。
-2. 选择 `Build` 工作流，点击 `Run workflow`。
-3. 选择 `main` 分支并运行。
-4. 等待 `build-mac-x64`、`build-mac-arm64`、`build-win` 全部成功。
-5. 在 run 页面下载 artifacts，确认存在：
+Manual GitHub-side follow-up:
+
+- Validate actual `Build` and `Release` workflow runs and asset completeness.
+- Confirm macOS signing and notarization stability.
+- Perform fresh install and upgrade tests on real machines.
+- Confirm public repository settings, branch protection, release notes, and announcement material.
+
+---
+
+## Next Manual Steps
+
+Follow this order to decide whether the project is ready for a public launch.
+
+### 1) Run the Build Workflow
+
+1. Open the repository `Actions` page on GitHub.
+2. Select the `Build` workflow and click `Run workflow`.
+3. Run it against the `main` branch.
+4. Wait until `build-mac-x64`, `build-mac-arm64`, and `build-win` all succeed.
+5. Download the artifacts from the run page and confirm that these names exist:
    - `macos-x64-release`
    - `macos-arm64-release`
    - `windows-release`
 
-### 2) 运行 Release 工作流（验证正式发布链路）
+### 2) Run the Release Workflow
 
-1. 在本地创建测试 tag（示例）：
+1. Create a test tag locally, for example:
    ```bash
    git tag v0.4.0-rc.1
    git push origin v0.4.0-rc.1
    ```
-2. 打开 GitHub `Actions`，确认 `Release` 工作流自动触发并成功。
-3. 打开仓库 `Releases`，确认该版本下资产齐全：
-   - macOS: `.dmg`、`-mac.zip`、`latest-mac.yml`、对应 `.blockmap`
-   - Windows: `.exe`、`latest.yml`、对应 `.blockmap`
+2. Open GitHub `Actions` and confirm that the `Release` workflow starts automatically and completes successfully.
+3. Open repository `Releases` and confirm that the release contains all expected assets:
+   - macOS: `.dmg`, `-mac.zip`, `latest-mac.yml`, and matching `.blockmap`
+   - Windows: `.exe`, `latest.yml`, and matching `.blockmap`
 
-### 3) 安装与升级验证（实机）
+### 3) Validate Install and Upgrade
 
-1. 使用 Release 资产在 macOS、Windows 各做一次全新安装。
-2. 从旧版本升级到当前测试版本，确认可完成升级与启动。
-3. 应用内执行“检查更新”，确认能命中主仓库 Release。
+1. Perform a clean install on both macOS and Windows using the release assets.
+2. Upgrade from an older version to the current test version and confirm that the app starts successfully after the upgrade.
+3. Run "Check for Updates" inside the app and confirm that it resolves to the main repository release.
 
-### 4) 失败回滚（测试 tag）
+### 4) Roll Back a Failed Test Tag
 
-若本次测试发布异常，删除测试 tag 与测试 release 后再修复重跑：
+If the test release fails, delete the test tag and test release, then fix the issue and rerun:
 
 ```bash
-# 删除远端 tag
+# Delete the remote tag
 git push origin :refs/tags/v0.4.0-rc.1
 
-# 删除本地 tag
+# Delete the local tag
 git tag -d v0.4.0-rc.1
 ```
 
-GitHub 上对应测试 Release 可在页面手动删除。
+Delete the matching test Release manually from GitHub if needed.

@@ -1,29 +1,31 @@
-# OpenClaw Desktop 飞书渠道配置指南
+# OpenClaw Desktop Feishu Channel Setup Guide
 
-本文说明如何在 **OpenClaw Desktop + OpenClaw Gateway** 下配置飞书（Feishu/Lark）机器人渠道，实现与飞书单聊、群聊的收发与 AI 对话。
+[English](./feishu-channel-setup.md) | [简体中文](./feishu-channel-setup.zh-CN.md)
 
-飞书渠道通过 **WebSocket 长连接** 接收消息，无需公网 IP 或 Webhook；发送走飞书开放平台 Open API。支持文本、图片、文件等；群聊需 @ 机器人触发（可配置）。
+This guide explains how to configure a Feishu or Lark bot channel with **OpenClaw Desktop + OpenClaw Gateway** so the bot can receive and send messages in direct chats and group chats.
+
+The Feishu channel receives events over a **long-lived WebSocket connection**, so it does not require a public IP address or webhook endpoint. Sending uses the Feishu Open Platform Open API. Text, images, files, and other content types are supported. Group chats can be configured to require an `@` mention before the bot responds.
 
 ---
 
-## 一、在飞书开放平台创建应用并获取凭证
+## 1. Create the App and Obtain Credentials
 
-### 1. 创建企业自建应用
+### 1.1 Create an internal enterprise app
 
-1. 打开 [飞书开放平台](https://open.feishu.cn/app)（国际版 Lark 使用 [open.larksuite.com/app](https://open.larksuite.com/app)，并在后文配置中设置 `domain: "lark"`）。
-2. 点击 **创建企业自建应用**，填写应用名称、描述，选择图标后创建。
+1. Open the [Feishu Open Platform](https://open.feishu.cn/app). For the international Lark version, use [open.larksuite.com/app](https://open.larksuite.com/app) and set `domain: "lark"` later in the config.
+2. Click **Create enterprise self-built app**, fill in the name, description, and icon, then create the app.
 
-### 2. 获取 App ID 与 App Secret
+### 1.2 Copy the App ID and App Secret
 
-1. 在应用 **凭证与基础信息** 中复制：
-   - **App ID**（形如 `cli_xxx`）
+1. In **Credentials & Basic Info**, copy:
+   - **App ID** such as `cli_xxx`
    - **App Secret**
-2. 请妥善保管 App Secret，勿泄露。
+2. Keep the App Secret private.
 
-### 3. 配置权限
+### 1.3 Configure permissions
 
-1. 进入 **权限管理**，点击 **批量导入**。
-2. 粘贴以下 JSON 并保存（与 OpenClaw 官方飞书渠道要求一致）：
+1. Open **Permission Management** and choose **Batch Import**.
+2. Paste the following JSON, which matches the OpenClaw Feishu channel requirements:
 
 ```json
 {
@@ -53,51 +55,51 @@
 }
 ```
 
-### 4. 启用机器人能力
+### 1.4 Enable bot capabilities
 
-1. 在 **能力** → **机器人** 中启用机器人能力。
-2. 设置机器人名称（即用户在飞书中看到的名称）。
+1. Go to **Capabilities** -> **Bot** and enable bot support.
+2. Set the bot display name that users will see in Feishu.
 
-### 5. 配置事件订阅（长连接）
+### 1.5 Configure event subscription for long connections
 
-**重要**：需先在本机完成「二、在 OpenClaw Desktop 中配置飞书」并 **启动 Gateway**，再在开放平台配置长连接，否则长连接可能无法保存。
+Important: finish section 2 first and make sure **Gateway is already running locally** before you save the long-connection event settings. Otherwise the platform may refuse to save the configuration.
 
-1. 在 **事件与回调** 中，将订阅方式选为 **使用长连接接收事件（WebSocket）**。
-2. 点击 **添加事件**，搜索并订阅：**接收消息 v1**（`im.message.receive_v1`）。
-3. 若 Gateway 未运行，此处可能保存失败；请先启动 Gateway 再重试。
+1. In **Events & Callbacks**, choose **Receive events through long connection (WebSocket)**.
+2. Click **Add Event**, search for and subscribe to **Receive Message v1** (`im.message.receive_v1`).
+3. If Gateway is not running, saving may fail. Start Gateway and retry.
 
-### 6. 发布应用
+### 1.6 Publish the app
 
-1. 在 **版本管理与发布** 中创建版本，填写说明后提交。
-2. 按企业流程完成审核/发布（自建应用通常可快速通过）。
+1. In **Version Management & Release**, create a version and submit it.
+2. Finish the review and release process required by your enterprise.
 
 ---
 
-## 二、在 OpenClaw Desktop 中配置飞书
+## 2. Configure Feishu in OpenClaw Desktop
 
-### 方式一：在 Desktop 配置页中配置（推荐）
+### Option A: Use the Desktop configuration UI
 
-1. 打开 **OpenClaw Desktop**，进入 **Config Manager** → **Channels**。
-2. 点击 **Add Channel**，在渠道列表中选择 **Feishu**（飞书）。
-3. 在配置表单中填写：
-   - **App ID**：飞书开放平台中的 App ID（如 `cli_xxx`）。
-   - **App Secret**：飞书开放平台中的 App Secret。
-4. 按需设置：
-   - **DM Policy**：私聊策略  
-     - `pairing`（默认）：新用户需配对，机器人会回复配对码，你在本机执行 `openclaw pairing approve feishu <配对码>` 批准。  
-     - `allowlist`：仅允许列表中的用户（在 **Allow From** 中填写飞书 `open_id`，如 `ou_xxx`）。  
-     - `open`：所有人可直接对话（慎用）。  
-     - `disabled`：关闭私聊。
-   - **Group Policy**：群聊策略（如 `open` / `allowlist` / `disabled`）。
-   - **Streaming**：流式回复方式（如 `off` / `partial` / `block` / `progress`）。
-5. 若使用 **Lark 国际版**，在 **Domain** 中填写 `lark`。
-6. 保存后，确保 **Gateway 已启动**（由 Desktop 或系统托盘的 OpenClaw 网关提供）。
+1. Open **OpenClaw Desktop** and go to **Config Manager** -> **Channels**.
+2. Click **Add Channel** and choose **Feishu**.
+3. Fill in:
+   - **App ID** from the Feishu platform
+   - **App Secret** from the Feishu platform
+4. Configure policies as needed:
+   - **DM Policy**
+     - `pairing` (default): a new user must be approved by running `openclaw pairing approve feishu <pairing-code>`
+     - `allowlist`: only users listed in **Allow From** can talk to the bot
+     - `open`: any user can talk to the bot directly
+     - `disabled`: disable direct messages
+   - **Group Policy** such as `open`, `allowlist`, or `disabled`
+   - **Streaming** such as `off`, `partial`, `block`, or `progress`
+5. If you use international **Lark**, set **Domain** to `lark`.
+6. Save the config and make sure **Gateway is running**.
 
-### 方式二：直接编辑配置文件
+### Option B: Edit the config file directly
 
-配置文件路径：`~/.openclaw/openclaw.json`（或 Desktop 所写入的 OpenClaw 配置）。
+The config file is usually `~/.openclaw/openclaw.json` or the file managed by Desktop.
 
-在 `channels.feishu` 中配置，例如：
+Example `channels.feishu` config:
 
 ```json
 {
@@ -107,9 +109,9 @@
       "dmPolicy": "allowlist",
       "accounts": {
         "main": {
-          "appId": "cli_你的AppID",
-          "appSecret": "你的AppSecret",
-          "botName": "我的 AI 助手"
+          "appId": "cli_yourAppID",
+          "appSecret": "yourAppSecret",
+          "botName": "My AI Assistant"
         }
       },
       "allowFrom": ["ou_ff21106b19c68ad74c59002f15e26ffd"]
@@ -118,10 +120,10 @@
 }
 ```
 
-- `dmPolicy: "pairing"` 时无需填 `allowFrom`，新用户会收到配对码，你在终端执行 `openclaw pairing approve feishu <配对码>` 批准。
-- `dmPolicy: "allowlist"` 时，在 `allowFrom` 中填写允许的飞书用户 **open_id**（如 `ou_xxx`）。如何获取 open_id：与机器人发一条消息后，在 Gateway 日志或配对列表中可见；或使用飞书 API 查询。
+- With `dmPolicy: "pairing"`, you do not need `allowFrom`. New users receive a pairing code and must be approved with `openclaw pairing approve feishu <pairing-code>`.
+- With `dmPolicy: "allowlist"`, list the allowed Feishu user **open_id** values in `allowFrom`, for example `ou_xxx`. You can find an `open_id` in Gateway logs, in the pairing list, or through the Feishu API after the user messages the bot.
 
-Lark 国际版时增加 `domain`：
+For Lark, add `domain`:
 
 ```json
 "feishu": {
@@ -133,11 +135,11 @@ Lark 国际版时增加 `domain`：
 
 ---
 
-## 三、批准私聊（配对）或使用白名单
+## 3. Approve Direct Messages or Use an Allowlist
 
-### 使用配对（dmPolicy: pairing）
+### Pairing mode (`dmPolicy: pairing`)
 
-1. 用户在飞书中首次给机器人发消息时，会收到类似回复：
+1. When a user sends a first message to the bot, they receive a response similar to:
    ```text
    OpenClaw: access not configured.
    Your Feishu user id: ou_xxxxxxxx
@@ -145,45 +147,44 @@ Lark 国际版时增加 `domain`：
    Ask the bot owner to approve with:
    openclaw pairing approve feishu XXXXXXXX
    ```
-2. 你在 **运行 OpenClaw 的本机** 打开终端（或 Desktop 内置 Terminal），执行：
+2. On the machine running OpenClaw, open a terminal or the Desktop terminal and run:
    ```bash
    openclaw pairing approve feishu XXXXXXXX
    ```
-   将 `XXXXXXXX` 替换为实际配对码。
-3. 批准后，该用户在飞书中再次发消息即可正常对话。
+3. After approval, the user can message the bot normally.
 
-查看待批准列表：
+To list pending approvals:
 
 ```bash
 openclaw pairing list feishu
 ```
 
-### 使用白名单（dmPolicy: allowlist）
+### Allowlist mode (`dmPolicy: allowlist`)
 
-1. 在 Config Manager → Channels → Feishu 展开行中，将 **DM Policy** 设为 **allowlist**。
-2. 在 **Allow From** 中填入允许的飞书用户 **open_id**（如 `ou_ff21106b19c68ad74c59002f15e26ffd`），多个 ID 用逗号或换行分隔。
-3. 保存后，仅列表中的用户可与机器人私聊，无需配对。
+1. In **Config Manager** -> **Channels** -> **Feishu**, set **DM Policy** to **allowlist**.
+2. Fill **Allow From** with one or more Feishu **open_id** values.
+3. Save the config. Only listed users can start direct chats with the bot.
 
-获取自己的 open_id：用配对方式让机器人回复一次，回复内容中会包含 `Your Feishu user id: ou_xxx`；或批准一次配对后，在 `openclaw pairing list feishu` 等输出中查看。
-
----
-
-## 四、验证与使用
-
-1. **确认 Gateway 已运行**：Desktop 菜单/托盘中的 OpenClaw 网关处于运行状态。
-2. **飞书中找到机器人**：在工作台或搜索中打开你创建的应用机器人，进入对话。
-3. **发消息测试**：  
-   - 若为 pairing：先按上文执行 `openclaw pairing approve feishu <配对码>` 再发消息。  
-   - 若为 allowlist：确认你的 open_id 已在 Allow From 中后直接发消息。
-4. 群聊中需 **@ 机器人** 才会触发回复（可在配置中为指定群关闭“必须 @”）。
-
-常见问题可参考 OpenClaw 官方飞书文档：[Feishu - OpenClaw](https://docs.openclaw.ai/channels/feishu)。
+To find your own `open_id`, trigger pairing once and read the value in the bot reply, or inspect the output of `openclaw pairing list feishu`.
 
 ---
 
-## 五、参考链接
+## 4. Validate the Setup
 
-- 飞书开放平台：<https://open.feishu.cn/app>
-- Lark 国际版：<https://open.larksuite.com/app>
-- OpenClaw 飞书渠道文档（英文）：<https://docs.openclaw.ai/channels/feishu>
-- OpenClaw 飞书渠道文档（中文）：<https://docs.openclaw.ai/zh-CN/channels/feishu>
+1. Confirm that **Gateway is running** from the Desktop menu, tray, or console page.
+2. Find the bot in Feishu and open the conversation.
+3. Send a test message:
+   - in pairing mode, approve the pairing code first
+   - in allowlist mode, confirm your `open_id` is listed
+4. In group chats, the bot normally requires an `@` mention before it responds, unless that rule is disabled for the target group.
+
+For more details, see the official OpenClaw Feishu docs: [Feishu - OpenClaw](https://docs.openclaw.ai/channels/feishu).
+
+---
+
+## 5. References
+
+- Feishu Open Platform: <https://open.feishu.cn/app>
+- Lark Open Platform: <https://open.larksuite.com/app>
+- OpenClaw Feishu docs (English): <https://docs.openclaw.ai/channels/feishu>
+- OpenClaw Feishu docs (Chinese): <https://docs.openclaw.ai/zh-CN/channels/feishu>

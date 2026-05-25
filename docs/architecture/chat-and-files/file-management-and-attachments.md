@@ -1,5 +1,7 @@
 # File Management and Attachments (Desktop)
 
+[English](./file-management-and-attachments.md) | [简体中文](./file-management-and-attachments.zh-CN.md)
+
 This note documents the current file-management, attachments, and voice-storage behavior in OpenClaw Desktop.
 
 ## Scope

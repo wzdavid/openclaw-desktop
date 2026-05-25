@@ -9,6 +9,46 @@ const GITHUB_OWNER: string = 'wzdavid';
 // Releases are now published in the main open-source repository.
 const GITHUB_REPO: string  = 'openclaw-desktop';
 
+function decodeHtmlEntities(value: string): string {
+  return value
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'");
+}
+
+function stripHtml(value: string): string {
+  return decodeHtmlEntities(value)
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>\s*<p>/gi, '\n\n')
+    .replace(/<\/li>\s*<li>/gi, '\n- ')
+    .replace(/<li>/gi, '- ')
+    .replace(/<\/?(p|ul|ol|div|strong|em|tt|code)>/gi, '')
+    .replace(/<a [^>]*href=["']([^"']+)["'][^>]*>(.*?)<\/a>/gi, '$2 ($1)')
+    .replace(/<[^>]+>/g, '')
+    .replace(/[ \t]+\n/g, '\n')
+    .trim();
+}
+
+function formatReleaseNotes(releaseNotes: UpdateInfo['releaseNotes']): string {
+  if (Array.isArray(releaseNotes)) {
+    return releaseNotes
+      .map((item) => {
+        const version = typeof item?.version === 'string' ? item.version.trim() : '';
+        const note = stripHtml(String(item?.note ?? '').trim());
+        if (!version) return note;
+        if (!note) return `Version ${version}`;
+        return `Version ${version}\n${note}`;
+      })
+      .filter(Boolean)
+      .join('\n\n');
+  }
+
+  return stripHtml(String(releaseNotes ?? '').trim());
+}
+
 export function setupUpdater(): void {
   // Skip in development
   if (!app.isPackaged) {
@@ -29,12 +69,17 @@ export function setupUpdater(): void {
   autoUpdater.on('update-available', (info: UpdateInfo) => {
     log.info('Update available:', info.version);
     BrowserWindow.getAllWindows()[0]?.webContents.send('update-available', info);
+    const releaseNotes = formatReleaseNotes(info.releaseNotes);
 
     dialog.showMessageBox({
       type: 'info',
       title: 'Update Available',
       message: `Version ${info.version} is available`,
-      detail: `Current: ${app.getVersion()}\n\n${info.releaseNotes || ''}`,
+      detail: [
+        `Current version: ${app.getVersion()}`,
+        `Available version: ${info.version}`,
+        releaseNotes,
+      ].filter(Boolean).join('\n\n'),
       buttons: ['Download Now', 'Later'],
       defaultId: 0, cancelId: 1,
     }).then((result) => {

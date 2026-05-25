@@ -1,17 +1,19 @@
 # 🦞 OpenClaw Desktop
 
-OpenClaw Desktop 是 OpenClaw 的跨平台桌面客户端，提供开箱即用的本地应用体验。
+[English](./README.md) | [简体中文](./README.zh-CN.md)
 
-## 核心特性
+OpenClaw Desktop is the cross-platform desktop client for OpenClaw, providing an out-of-the-box local app experience.
 
-- 一键启动，无需手动安装 Node.js
-- 桌面聊天与控制台界面，连接 OpenClaw Gateway
-- 自动更新（发布源：主仓库 Releases）
-- 支持 macOS / Windows / Linux
+## Key Features
 
-## 快速开始
+- One-click startup without requiring a manual Node.js installation
+- Desktop chat and console interface connected to OpenClaw Gateway
+- Automatic updates distributed from the main repository Releases
+- Support for macOS / Windows / Linux
 
-### 开发
+## Quick Start
+
+### Development
 
 ```bash
 npm install
@@ -20,7 +22,7 @@ npm run bundle:node:win    # Windows
 npm run dev
 ```
 
-### 构建
+### Build
 
 ```bash
 npm run build:mac
@@ -28,36 +30,37 @@ npm run build:win
 npm run build:linux
 ```
 
-构建产物默认在 `release/` 目录。
+Build artifacts are generated in the `release/` directory by default.
 
 ## CI/CD
 
-- `Build` 工作流：构建验证 + 上传 artifacts（不发布）
-- `Release` 工作流：`v*` tag 触发正式发布到 GitHub Releases
+- `Build` workflow: build validation and artifact upload without publishing
+- `Release` workflow: publish to GitHub Releases when a `v*` tag is pushed
 
-发布示例：
+Release example:
 
 ```bash
 git tag v1.0.0
 git push origin v1.0.0
 ```
 
-## 文档导航
+## Documentation
 
-- 项目文档：`docs/README.md`
-- 构建与发布配置：`docs/build-release/config-build-release.md`
-- 开源前检查清单：`docs/open-source-checklist.md`
-- FAQ 与故障排查：`docs/support/faq-and-troubleshooting.md`
-- 贡献指南：`CONTRIBUTING.md`
-- 安全策略：`SECURITY.md`
+- English docs: `docs/README.md`
+- Chinese docs: `docs/README.zh-CN.md`
+- Build and release configuration: `docs/build-release/config-build-release.md`
+- Open-source readiness checklist: `docs/open-source-checklist.md`
+- FAQ and troubleshooting: `docs/support/faq-and-troubleshooting.md`
+- Contributing guide: `CONTRIBUTING.md` | Chinese: `CONTRIBUTING.zh-CN.md`
+- Security policy: `SECURITY.md` | Chinese: `SECURITY.zh-CN.md`
 
-## 致谢
+## Acknowledgements
 
-OpenClaw Desktop 基于以下项目的工作与启发：
+OpenClaw Desktop is inspired by and builds on the work of:
 
 1. OpenClaw: https://github.com/openclaw/openclaw
 2. AEGIS Desktop: https://github.com/rshodoskar-star/openclaw-desktop
 
 ## License
 
-MIT
+This project is licensed under the MIT License. See `LICENSE` for details.

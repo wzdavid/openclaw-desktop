@@ -1,25 +1,27 @@
-## 配置、构建与发布
+## Configuration, Build, and Release
 
-本文件描述当前生效的配置、构建与发布模式（开源后主仓库统一发布）。
+[English](./config-build-release.md) | [简体中文](./config-build-release.zh-CN.md)
+
+This document describes the currently supported configuration, local build, and release flow for OpenClaw Desktop. After the project is open-sourced, the main repository remains the single release source.
 
 ---
 
-### 1. 应用配置
+### 1. App Configuration
 
-- 可在项目根目录使用 `.env` / `.env.local` 覆盖默认参数：
+- Override default parameters with `.env` or `.env.local` in the project root:
 
 ```env
 OPENCLAW_PORT=18789
 OPENCLAW_NODE_PATH=/path/to/node
 ```
 
-- OpenClaw Desktop 依赖 OpenClaw 配置文件 `~/.openclaw/openclaw.json`。
+- OpenClaw Desktop depends on the OpenClaw config file at `~/.openclaw/openclaw.json`.
 
 ---
 
-### 2. 本地构建
+### 2. Local Build
 
-- 开发：
+- Development:
 
 ```bash
 npm install
@@ -27,7 +29,7 @@ npm run bundle:node
 npm run dev
 ```
 
-- 生产构建：
+- Production build:
 
 ```bash
 npm run build:mac
@@ -35,31 +37,31 @@ npm run build:win
 npm run build:linux
 ```
 
-- 产物默认在 `release/` 目录。
+- Build outputs are generated under `release/` by default.
 
 ---
 
-### 3. GitHub Actions 工作流
+### 3. GitHub Actions Workflows
 
-当前采用双工作流：
+The repository uses two workflows:
 
-- `build.yml`（构建验证）
-  - 触发：`main` 分支提交、PR、手动触发
-  - 行为：构建并上传 Actions artifacts
-  - 不发布 GitHub Release（`--publish never`）
+- `build.yml` for build validation
+  - Triggers on `main` commits, pull requests, and manual runs
+  - Builds the app and uploads GitHub Actions artifacts
+  - Does not publish a GitHub Release (`--publish never`)
 
-- `release.yml`（正式发布）
-  - 触发：`v*` tag、手动触发
-  - 行为：构建并发布到主仓库 Releases
+- `release.yml` for formal releases
+  - Triggers on `v*` tags and manual runs
+  - Builds the app and publishes assets to the main repository Releases
 
-手动验证构建：
+Manual build validation:
 
-1. 打开 GitHub Actions。
-2. 选择 `Build`。
-3. 点击 `Run workflow`。
-4. 在运行结果下载 `macos-x64-release` / `macos-arm64-release` / `windows-release` artifacts。
+1. Open GitHub Actions.
+2. Select `Build`.
+3. Click `Run workflow`.
+4. Download the `macos-x64-release`, `macos-arm64-release`, and `windows-release` artifacts from the finished run.
 
-正式发布：
+Formal release:
 
 ```bash
 git tag v0.4.0
@@ -68,9 +70,9 @@ git push origin v0.4.0
 
 ---
 
-### 4. macOS 签名与公证
+### 4. macOS Signing and Notarization
 
-CI 需要以下 Secrets：
+CI requires these secrets:
 
 - `MAC_CERTS`
 - `MAC_CERTS_PASSWORD`
@@ -78,16 +80,16 @@ CI 需要以下 Secrets：
 - `APPLE_APP_SPECIFIC_PASSWORD`
 - `APPLE_TEAM_ID`
 
-发布 workflow 会在 macOS job 中完成签名与 notarization。
+The release workflow completes signing and notarization in the macOS job.
 
 ---
 
-### 5. 自动更新与发布仓库
+### 5. Auto Update and Release Repository
 
-当前自动更新和发布均指向主仓库 `wzdavid/openclaw-desktop`：
+Auto update and publishing currently point to the main repository `wzdavid/openclaw-desktop`:
 
-| 组件 | 当前值 |
+| Component | Current Value |
 |---|---|
 | `package.json` `build.publish.repo` | `openclaw-desktop` |
 | `electron/updater.ts` `GITHUB_REPO` | `openclaw-desktop` |
-| CI 发布凭据 | `GITHUB_TOKEN`（workflow 权限 `contents: write`） |
+| CI publish credential | `GITHUB_TOKEN` with `contents: write` permission |

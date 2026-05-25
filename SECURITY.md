@@ -1,28 +1,30 @@
 # Security Policy
 
+[English](./SECURITY.md) | [简体中文](./SECURITY.zh-CN.md)
+
 ## Supported Versions
 
-当前仅保证最新发布版本接收安全修复。历史版本不承诺持续维护。
+Only the latest released version is guaranteed to receive security fixes. Older versions are not maintained for ongoing security support.
 
 ## Reporting a Vulnerability
 
-如果你发现了安全问题，请不要在公开 Issue 中披露细节。
+If you discover a security issue, please do not disclose details in a public issue.
 
-请通过以下方式私下联系维护者：
+Please contact the maintainers privately through one of the following channels:
 
-- GitHub Security Advisory（如已启用）
-- 或仓库维护者提供的私密联系方式
+- GitHub Security Advisory, if enabled
+- or a private contact channel provided by the repository maintainers
 
-报告时请尽量包含：
+Please include as much of the following as possible:
 
-- 问题描述与影响范围
-- 复现步骤（PoC）
-- 受影响版本
-- 建议修复方向（可选）
+- a description of the issue and its impact
+- reproduction steps or a proof of concept
+- affected versions
+- an optional remediation suggestion
 
-我们会尽快确认并评估严重性，必要时安排修复与发布。
+We review reports as quickly as possible, assess severity, and schedule a fix and release when necessary.
 
 ## Disclosure
 
-- 在补丁发布前，请避免公开披露漏洞细节。
-- 补丁发布后，我们会在 Release Notes 中给出必要说明（不暴露可利用细节）。
+- Please avoid public disclosure before a patch is released.
+- After a fix is published, we may include a brief note in the release notes without exposing exploit details.
