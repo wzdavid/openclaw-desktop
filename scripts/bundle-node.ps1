@@ -11,7 +11,7 @@
 #   npm run bundle:node:win
 #
 # Override versions:
-#   $env:NODE_VERSION="22.16.0"; npm run bundle:node:win
+#   $env:NODE_VERSION="22.22.2"; npm run bundle:node:win
 #
 # Use mirrors:
 #   $env:NODE_DIST_MIRROR="https://npmmirror.com/mirrors/node"; $env:NPM_REGISTRY_MIRROR="https://registry.npmmirror.com"; npm run bundle:node:win
@@ -36,7 +36,7 @@ function Get-BundleDefaults {
   param([string]$PackageJsonFile)
 
   $defaults = @{
-    NodeVersion = "22.16.0"
+    NodeVersion = "22.22.2"
     OpenclawVersion = "latest"
   }
 
@@ -65,7 +65,7 @@ if ($Help) {
   Write-Host "Usage:"
   Write-Host "  npm run bundle:node:win"
   Write-Host '  powershell -ExecutionPolicy Bypass -File scripts\bundle-node.ps1 -ForceRefresh'
-  Write-Host '  $env:NODE_VERSION="22.16.0"; $env:OPENCLAW_VERSION="latest"; npm run bundle:node:win'
+  Write-Host '  $env:NODE_VERSION="22.22.2"; $env:OPENCLAW_VERSION="latest"; npm run bundle:node:win'
   Write-Host '  $env:ARCH_OVERRIDE="x64"; npm run bundle:node:win'
   Write-Host ""
   Write-Host "Options:"

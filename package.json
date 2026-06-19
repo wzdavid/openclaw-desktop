@@ -6,7 +6,7 @@
   "author": "Wei ZHANG",
   "license": "MIT",
   "openclawDesktopBundleDefaults": {
-    "nodeVersion": "22.16.0",
+    "nodeVersion": "22.22.2",
     "openclawVersion": "2026.6.8"
   },
   "scripts": {

@@ -16,7 +16,7 @@
 #   npm run bundle:node
 #
 # Override versions:
-#   NODE_VERSION=22.16.0 OPENCLAW_VERSION=latest npm run bundle:node
+#   NODE_VERSION=22.22.2 OPENCLAW_VERSION=latest npm run bundle:node
 #
 # Use mirrors:
 #   NODE_DIST_MIRROR=https://npmmirror.com/mirrors/node NPM_REGISTRY_MIRROR=https://registry.npmmirror.com npm run bundle:node
@@ -86,7 +86,7 @@ read_bundle_default() {
   fi
 }
 
-DEFAULT_NODE_VERSION="$(read_bundle_default nodeVersion "22.16.0")"
+DEFAULT_NODE_VERSION="$(read_bundle_default nodeVersion "22.22.2")"
 DEFAULT_OPENCLAW_VERSION="$(read_bundle_default openclawVersion "latest")"
 
 NODE_VERSION="${NODE_VERSION:-$DEFAULT_NODE_VERSION}"
@@ -147,7 +147,7 @@ if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
 Usage:
   npm run bundle:node
   FORCE_REFRESH=1 npm run bundle:node
-  NODE_VERSION=22.16.0 OPENCLAW_VERSION=latest npm run bundle:node
+  NODE_VERSION=22.22.2 OPENCLAW_VERSION=latest npm run bundle:node
   ARCH_OVERRIDE=arm64 npm run bundle:node
 
 Environment variables:
