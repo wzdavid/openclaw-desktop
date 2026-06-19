@@ -1,13 +1,13 @@
 {
   "name": "openclaw-desktop",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "OpenClaw Desktop — OpenClaw 的桌面工作台，开箱即用的 AI Agent 控制中心",
   "main": "dist-electron/main.js",
   "author": "Wei ZHANG",
   "license": "MIT",
   "openclawDesktopBundleDefaults": {
     "nodeVersion": "22.16.0",
-    "openclawVersion": "latest"
+    "openclawVersion": "2026.6.8"
   },
   "scripts": {
     "sync:edition": "node scripts/sync-edition-package.js",
